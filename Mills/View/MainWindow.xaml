@@ -1,0 +1,83 @@
+﻿<Window xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:ViewModel="clr-namespace:Mills.ViewModel"
+        xmlns:Enum="clr-namespace:Mills.Enum"
+        xmlns:Converter="clr-namespace:Mills.Converter"
+        x:Class="Mills.MainWindow"
+        mc:Ignorable="d"
+        Title="{Binding Title}"
+        Height="525" 
+        Width="700"
+        ResizeMode="CanMinimize">
+    <Window.DataContext>
+        <ViewModel:MainViewModel/>
+    </Window.DataContext>
+
+    <Window.Resources>
+        <ResourceDictionary>
+            <Converter:BoardPositionsToImageSourceConverter x:Key="BoardPositionsToImageSourceConverter" />
+        </ResourceDictionary>
+    </Window.Resources>
+
+    <Grid HorizontalAlignment="Left">
+        <Image Height="500" Width="500" Source="pack://application:,,,/Mills;component/Resources/mills.jpg" HorizontalAlignment="Left"/>
+
+        <Button Command="{Binding ButtonClickCommand}" CommandParameter="{x:Static Enum:ButtonPosition.OuterTopLeft}" HorizontalAlignment="Left" Margin="15,15,0,0" VerticalAlignment="Top" Width="30" Height="30" Opacity="0" />
+        <Button Command="{Binding ButtonClickCommand}" CommandParameter="{x:Static Enum:ButtonPosition.OuterTopMiddle}" HorizontalAlignment="Left" Margin="235,15,0,0" VerticalAlignment="Top" Opacity="0" Width="30" Height="30" />
+        <Button Command="{Binding ButtonClickCommand}" CommandParameter="{x:Static Enum:ButtonPosition.OuterTopRight}" HorizontalAlignment="Left" Margin="455,15,0,0" VerticalAlignment="Top" Opacity="0" Width="30" Height="30" />
+        <Button Command="{Binding ButtonClickCommand}" CommandParameter="{x:Static Enum:ButtonPosition.OuterMiddleLeft}" HorizontalAlignment="Left" Margin="19,15,0,0" VerticalAlignment="Center" Opacity="0" Width="30" Height="30" />
+        <Button Command="{Binding ButtonClickCommand}" CommandParameter="{x:Static Enum:ButtonPosition.OuterMiddleRight}" HorizontalAlignment="Left" Margin="455,15,0,0" VerticalAlignment="Center" Opacity="0" Width="30" Height="30" />
+        <Button Command="{Binding ButtonClickCommand}" CommandParameter="{x:Static Enum:ButtonPosition.OuterBottomLeft}" HorizontalAlignment="Left" Margin="15,455,0,0" VerticalAlignment="Top" Opacity="0" Width="30" Height="30" />
+        <Button Command="{Binding ButtonClickCommand}" CommandParameter="{x:Static Enum:ButtonPosition.OuterBottomMiddle}" HorizontalAlignment="Left" Margin="235,455,0,0" VerticalAlignment="Top" Opacity="0" Width="30" Height="30" />
+        <Button Command="{Binding ButtonClickCommand}" CommandParameter="{x:Static Enum:ButtonPosition.OuterBottomRight}" HorizontalAlignment="Left" Margin="455,455,0,0" VerticalAlignment="Top" Opacity="0" Width="30" Height="30" />
+
+        <Button Command="{Binding ButtonClickCommand}" CommandParameter="{x:Static Enum:ButtonPosition.MiddleTopLeft}" HorizontalAlignment="Left" Margin="88,88,0,0" VerticalAlignment="Top" Opacity="0" Width="30" Height="30" />
+        <Button Command="{Binding ButtonClickCommand}" CommandParameter="{x:Static Enum:ButtonPosition.MiddleTopMiddle}" HorizontalAlignment="Left" Margin="235,88,0,0" VerticalAlignment="Top" Opacity="0" Width="30" Height="30" />
+        <Button Command="{Binding ButtonClickCommand}" CommandParameter="{x:Static Enum:ButtonPosition.MiddleTopRight}" HorizontalAlignment="Left" Margin="381,88,0,0" VerticalAlignment="Top" Opacity="0" Width="30" Height="30" />
+        <Button Command="{Binding ButtonClickCommand}" CommandParameter="{x:Static Enum:ButtonPosition.MiddleMiddleLeft}" HorizontalAlignment="Left" Margin="88,15,0,0" VerticalAlignment="Center" Opacity="0" Width="30" Height="30" />
+        <Button Command="{Binding ButtonClickCommand}" CommandParameter="{x:Static Enum:ButtonPosition.MiddleMiddleRight}" HorizontalAlignment="Left" Margin="381,15,0,0" VerticalAlignment="Center" Opacity="0" Width="30" Height="30" />
+        <Button Command="{Binding ButtonClickCommand}" CommandParameter="{x:Static Enum:ButtonPosition.MiddleBottomLeft}" HorizontalAlignment="Left" Margin="88,381,0,0" VerticalAlignment="Top" Opacity="0" Width="30" Height="30" />
+        <Button Command="{Binding ButtonClickCommand}" CommandParameter="{x:Static Enum:ButtonPosition.MiddleBottomMiddle}" HorizontalAlignment="Left" Margin="235,381,0,0" VerticalAlignment="Top" Opacity="0" Width="30" Height="30" />
+        <Button Command="{Binding ButtonClickCommand}" CommandParameter="{x:Static Enum:ButtonPosition.MiddleBottomRight}" HorizontalAlignment="Left" Margin="381,381,0,0" VerticalAlignment="Top" Opacity="0" Width="30" Height="30" />
+
+        <Button Command="{Binding ButtonClickCommand}" CommandParameter="{x:Static Enum:ButtonPosition.InnerTopLeft}" HorizontalAlignment="Left" Margin="160,160,0,0" VerticalAlignment="Top" Opacity="0" Width="30" Height="30" />
+        <Button Command="{Binding ButtonClickCommand}" CommandParameter="{x:Static Enum:ButtonPosition.InnerTopMiddle}" HorizontalAlignment="Left" Margin="235,160,0,0" VerticalAlignment="Top" Opacity="0" Width="30" Height="30" />
+        <Button Command="{Binding ButtonClickCommand}" CommandParameter="{x:Static Enum:ButtonPosition.InnerTopRight}" HorizontalAlignment="Left" Margin="308,160,0,0" VerticalAlignment="Top" Opacity="0" Width="30" Height="30" />
+        <Button Command="{Binding ButtonClickCommand}" CommandParameter="{x:Static Enum:ButtonPosition.InnerMiddleLeft}" HorizontalAlignment="Left" Margin="160,15,0,0" VerticalAlignment="Center" Opacity="0" Width="30" Height="30" />
+        <Button Command="{Binding ButtonClickCommand}" CommandParameter="{x:Static Enum:ButtonPosition.InnerMiddleRight}" HorizontalAlignment="Left" Margin="308,15,0,0" VerticalAlignment="Center" Opacity="0" Width="30" Height="30" />
+        <Button Command="{Binding ButtonClickCommand}" CommandParameter="{x:Static Enum:ButtonPosition.InnerBottomLeft}" HorizontalAlignment="Left" Margin="160,308,0,0" VerticalAlignment="Top" Opacity="0" Width="30" Height="30" />
+        <Button Command="{Binding ButtonClickCommand}" CommandParameter="{x:Static Enum:ButtonPosition.InnerBottomMiddle}" HorizontalAlignment="Left" Margin="235,308,0,0" VerticalAlignment="Top" Opacity="0" Width="30" Height="30" />
+        <Button Command="{Binding ButtonClickCommand}" CommandParameter="{x:Static Enum:ButtonPosition.InnerBottomRight}" HorizontalAlignment="Left" Margin="308,308,0,0" VerticalAlignment="Top" Opacity="0" Width="30" Height="30" />
+
+        <Image IsHitTestVisible="False" Source="{Binding TokenPositions, Converter={StaticResource ResourceKey=BoardPositionsToImageSourceConverter}, ConverterParameter={x:Static Enum:ButtonPosition.OuterTopLeft}}" HorizontalAlignment="Left" Margin="15,15,0,0" VerticalAlignment="Top" Width="30" Height="30"/>
+        <Image IsHitTestVisible="False" Source="{Binding TokenPositions, Converter={StaticResource ResourceKey=BoardPositionsToImageSourceConverter}, ConverterParameter={x:Static Enum:ButtonPosition.OuterTopMiddle}}" HorizontalAlignment="Left" Margin="235,15,0,0" VerticalAlignment="Top" Width="30" Height="30"/>
+        <Image IsHitTestVisible="False" Source="{Binding TokenPositions, Converter={StaticResource ResourceKey=BoardPositionsToImageSourceConverter}, ConverterParameter={x:Static Enum:ButtonPosition.OuterTopRight}}" HorizontalAlignment="Left" Margin="455,15,0,0" VerticalAlignment="Top" Width="30" Height="30"/>
+        <Image IsHitTestVisible="False" Source="{Binding TokenPositions, Converter={StaticResource ResourceKey=BoardPositionsToImageSourceConverter}, ConverterParameter={x:Static Enum:ButtonPosition.OuterMiddleLeft}}" HorizontalAlignment="Left" Margin="15,15,0,0" VerticalAlignment="Center" Width="30" Height="30"/>
+        <Image IsHitTestVisible="False" Source="{Binding TokenPositions, Converter={StaticResource ResourceKey=BoardPositionsToImageSourceConverter}, ConverterParameter={x:Static Enum:ButtonPosition.OuterMiddleRight}}" HorizontalAlignment="Left" Margin="455,15,0,0" VerticalAlignment="Center" Width="30" Height="30"/>
+        <Image IsHitTestVisible="False" Source="{Binding TokenPositions, Converter={StaticResource ResourceKey=BoardPositionsToImageSourceConverter}, ConverterParameter={x:Static Enum:ButtonPosition.OuterBottomLeft}}" HorizontalAlignment="Left" Margin="15,455,0,0" VerticalAlignment="Top" Width="30" Height="30"/>
+        <Image IsHitTestVisible="False" Source="{Binding TokenPositions, Converter={StaticResource ResourceKey=BoardPositionsToImageSourceConverter}, ConverterParameter={x:Static Enum:ButtonPosition.OuterBottomMiddle}}" HorizontalAlignment="Left" Margin="235,455,0,0" VerticalAlignment="Top" Width="30" Height="30"/>
+        <Image IsHitTestVisible="False" Source="{Binding TokenPositions, Converter={StaticResource ResourceKey=BoardPositionsToImageSourceConverter}, ConverterParameter={x:Static Enum:ButtonPosition.OuterBottomRight}}" HorizontalAlignment="Left" Margin="455,455,0,0" VerticalAlignment="Top" Width="30" Height="30"/>
+
+        <Image IsHitTestVisible="False" Source="{Binding TokenPositions, Converter={StaticResource ResourceKey=BoardPositionsToImageSourceConverter}, ConverterParameter={x:Static Enum:ButtonPosition.MiddleTopLeft}}" HorizontalAlignment="Left" Margin="88,88,0,0" VerticalAlignment="Top" Width="30" Height="30"/>
+        <Image IsHitTestVisible="False" Source="{Binding TokenPositions, Converter={StaticResource ResourceKey=BoardPositionsToImageSourceConverter}, ConverterParameter={x:Static Enum:ButtonPosition.MiddleTopMiddle}}" HorizontalAlignment="Left" Margin="235,88,0,0" VerticalAlignment="Top" Width="30" Height="30"/>
+        <Image IsHitTestVisible="False" Source="{Binding TokenPositions, Converter={StaticResource ResourceKey=BoardPositionsToImageSourceConverter}, ConverterParameter={x:Static Enum:ButtonPosition.MiddleTopRight}}" HorizontalAlignment="Left" Margin="381,88,0,0" VerticalAlignment="Top" Width="30" Height="30"/>
+        <Image IsHitTestVisible="False" Source="{Binding TokenPositions, Converter={StaticResource ResourceKey=BoardPositionsToImageSourceConverter}, ConverterParameter={x:Static Enum:ButtonPosition.MiddleMiddleLeft}}" HorizontalAlignment="Left" Margin="88,15,0,0" VerticalAlignment="Center" Width="30" Height="30"/>
+        <Image IsHitTestVisible="False" Source="{Binding TokenPositions, Converter={StaticResource ResourceKey=BoardPositionsToImageSourceConverter}, ConverterParameter={x:Static Enum:ButtonPosition.MiddleMiddleRight}}" HorizontalAlignment="Left" Margin="381,15,0,0" VerticalAlignment="Center" Width="30" Height="30"/>
+        <Image IsHitTestVisible="False" Source="{Binding TokenPositions, Converter={StaticResource ResourceKey=BoardPositionsToImageSourceConverter}, ConverterParameter={x:Static Enum:ButtonPosition.MiddleBottomLeft}}" HorizontalAlignment="Left" Margin="88,381,0,0" VerticalAlignment="Top" Width="30" Height="30"/>
+        <Image IsHitTestVisible="False" Source="{Binding TokenPositions, Converter={StaticResource ResourceKey=BoardPositionsToImageSourceConverter}, ConverterParameter={x:Static Enum:ButtonPosition.MiddleBottomMiddle}}" HorizontalAlignment="Left" Margin="235,381,0,0" VerticalAlignment="Top" Width="30" Height="30"/>
+        <Image IsHitTestVisible="False" Source="{Binding TokenPositions, Converter={StaticResource ResourceKey=BoardPositionsToImageSourceConverter}, ConverterParameter={x:Static Enum:ButtonPosition.MiddleBottomRight}}" HorizontalAlignment="Left" Margin="381,381,0,0" VerticalAlignment="Top" Width="30" Height="30"/>
+
+        <Image IsHitTestVisible="False" Source="{Binding TokenPositions, Converter={StaticResource ResourceKey=BoardPositionsToImageSourceConverter}, ConverterParameter={x:Static Enum:ButtonPosition.InnerTopLeft}}" HorizontalAlignment="Left" Margin="160,160,0,0" VerticalAlignment="Top" Width="30" Height="30"/>
+        <Image IsHitTestVisible="False" Source="{Binding TokenPositions, Converter={StaticResource ResourceKey=BoardPositionsToImageSourceConverter}, ConverterParameter={x:Static Enum:ButtonPosition.InnerTopMiddle}}" HorizontalAlignment="Left" Margin="235,160,0,0" VerticalAlignment="Top" Width="30" Height="30"/>
+        <Image IsHitTestVisible="False" Source="{Binding TokenPositions, Converter={StaticResource ResourceKey=BoardPositionsToImageSourceConverter}, ConverterParameter={x:Static Enum:ButtonPosition.InnerTopRight}}" HorizontalAlignment="Left" Margin="308,160,0,0" VerticalAlignment="Top" Width="30" Height="30"/>
+        <Image IsHitTestVisible="False" Source="{Binding TokenPositions, Converter={StaticResource ResourceKey=BoardPositionsToImageSourceConverter}, ConverterParameter={x:Static Enum:ButtonPosition.InnerMiddleLeft}}" HorizontalAlignment="Left" Margin="160,15,0,0" VerticalAlignment="Center" Width="30" Height="30"/>
+        <Image IsHitTestVisible="False" Source="{Binding TokenPositions, Converter={StaticResource ResourceKey=BoardPositionsToImageSourceConverter}, ConverterParameter={x:Static Enum:ButtonPosition.InnerMiddleRight}}" HorizontalAlignment="Left" Margin="308,15,0,0" VerticalAlignment="Center" Width="30" Height="30"/>
+        <Image IsHitTestVisible="False" Source="{Binding TokenPositions, Converter={StaticResource ResourceKey=BoardPositionsToImageSourceConverter}, ConverterParameter={x:Static Enum:ButtonPosition.InnerBottomLeft}}" HorizontalAlignment="Left" Margin="160,308,0,0" VerticalAlignment="Top" Width="30" Height="30"/>
+        <Image IsHitTestVisible="False" Source="{Binding TokenPositions, Converter={StaticResource ResourceKey=BoardPositionsToImageSourceConverter}, ConverterParameter={x:Static Enum:ButtonPosition.InnerBottomMiddle}}" HorizontalAlignment="Left" Margin="235,308,0,0" VerticalAlignment="Top" Width="30" Height="30"/>
+        <Image IsHitTestVisible="False" Source="{Binding TokenPositions, Converter={StaticResource ResourceKey=BoardPositionsToImageSourceConverter}, ConverterParameter={x:Static Enum:ButtonPosition.InnerBottomRight}}" HorizontalAlignment="Left" Margin="308,308,0,0" VerticalAlignment="Top" Width="30" Height="30"/>
+
+        <Label Content="{Binding ActivePlayerText}" HorizontalAlignment="Left" Margin="505,21,0,0" VerticalAlignment="Top"/>
+    </Grid>
+</Window>

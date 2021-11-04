@@ -1,0 +1,30 @@
+﻿namespace Mills.Enum
+{
+    public enum ButtonPosition
+    {
+        OuterTopLeft,
+        OuterTopMiddle,
+        OuterTopRight,
+        OuterMiddleLeft,
+        OuterMiddleRight,
+        OuterBottomLeft,
+        OuterBottomMiddle,
+        OuterBottomRight,
+        MiddleTopLeft,
+        MiddleTopMiddle,
+        MiddleTopRight,
+        MiddleMiddleLeft,
+        MiddleMiddleRight,
+        MiddleBottomLeft,
+        MiddleBottomMiddle,
+        MiddleBottomRight,
+        InnerTopLeft,
+        InnerTopMiddle,
+        InnerTopRight,
+        InnerMiddleLeft,
+        InnerMiddleRight,
+        InnerBottomLeft,
+        InnerBottomMiddle,
+        InnerBottomRight,
+    }
+}
