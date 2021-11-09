@@ -1,6 +1,6 @@
 ﻿namespace Mills.Enum
 {
-    public enum ButtonPosition
+    public enum BoardPosition
     {
         OuterTopLeft,
         OuterTopMiddle,

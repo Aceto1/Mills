@@ -73,6 +73,16 @@ namespace Mills.Properties {
         /// <summary>
         ///   Looks up a localized resource of type System.Byte[].
         /// </summary>
+        public static byte[] green {
+            get {
+                object obj = ResourceManager.GetObject("green", resourceCulture);
+                return ((byte[])(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Byte[].
+        /// </summary>
         public static byte[] mills {
             get {
                 object obj = ResourceManager.GetObject("mills", resourceCulture);
