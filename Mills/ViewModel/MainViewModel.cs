@@ -58,30 +58,43 @@ namespace Mills.ViewModel
             }
         }
 
-        private int whitePlacedTokens;
+        private int whiteTokenCount;
 
-        public int WhitePlacedTokens
+        public int WhiteTokenCount
         {
-            get => whitePlacedTokens; set
+            get => whiteTokenCount; set
             {
-                whitePlacedTokens = value;
-                OnPropertyChanged(nameof(WhitePlacedTokens));
+                whiteTokenCount = value;
+                OnPropertyChanged(nameof(WhiteTokenCount));
             }
         }
 
-        private int blackPlacedTokens;
+        private int blackTokenCount;
 
-        public int BlackPlacedTokens
+        public int BlackTokenCount
         {
-            get => blackPlacedTokens; set
+            get => blackTokenCount; set
             {
-                blackPlacedTokens = value;
-                OnPropertyChanged(nameof(BlackPlacedTokens));
+                blackTokenCount = value;
+                OnPropertyChanged(nameof(BlackTokenCount));
             }
         }
 
-        public BoardPosition SelectedPosition { 
-            get => selectedPosition; 
+        private int tokensPlaced;
+
+        public int TokensPlaced
+        {
+            get => tokensPlaced;
+            set
+            {
+                tokensPlaced = value;
+                OnPropertyChanged(nameof(TokensPlaced));
+            }
+        }
+
+        public BoardPosition SelectedPosition
+        {
+            get => selectedPosition;
             set
             {
                 selectedPosition = value;
@@ -105,23 +118,17 @@ namespace Mills.ViewModel
 
         public void HandlePhaseOneClick(BoardPosition position)
         {
+            // Feld mit Spielstein angeklickt = Nichts passiert
             if (BoardState.ContainsKey(position))
                 return;
 
             BoardState.Add(new KeyValuePair<BoardPosition, PositionState>(position, (PositionState)ActivePlayer));
 
-            if (ActivePlayer == 1)
-            {
-                WhitePlacedTokens++;
-                ActivePlayer = 2;
-            }
-            else
-            {
-                BlackPlacedTokens++;
-                ActivePlayer = 1;
-            }
+            // Anzahl der platzierten Spielstein erhöhen
+            TokensPlaced++;
 
-            if (WhitePlacedTokens == 9 && BlackPlacedTokens == 9)
+            // Phase 2 beginnt, wenn beide Spieler 9 Steine platziert haben
+            if (TokensPlaced == 18)
             {
                 ActivePhase++;
             }
@@ -129,6 +136,7 @@ namespace Mills.ViewModel
 
         public void HandlePhaseTwoClick(BoardPosition position)
         {
+            //Leeres Feld angeklickt = Nichts passiert
             if (!BoardState.ContainsKey(position))
                 return;
 
@@ -136,42 +144,38 @@ namespace Mills.ViewModel
 
             if (value == PositionState.AvailableForMove)
             {
-                var enumerator = BoardState.GetEnumerator();
-                var toRemove = new List<BoardPosition>();
-                do
+                // Verfügbares Feld selektiert, also erst alle als verfügbar markierten Felder löschen
+                foreach (var pos in BoardState)
                 {
-                    if (enumerator.Current.Value == PositionState.AvailableForMove)
-                    {
-                        toRemove.Add(enumerator.Current.Key);
-                    }
-                }
-                while (enumerator.MoveNext());
+                    if (pos.Value == PositionState.AvailableForMove)
+                        BoardState.Remove(pos);
+                };
 
-                foreach (var item in toRemove)
-                {
-                    BoardState.Remove(item);
-                }
-
+                // Vorher selektierten Spielstein auf gerade ausgewählt Position verschieben und alte Position löschen
                 BoardState.Add(position, BoardState[selectedPosition]);
                 BoardState.Remove(selectedPosition);
-            } else
+            }
+            else
             {
+                //Neuer Stein selektiert, also erst alle bisher als verfügbar markierten Felder löschen
+                foreach (var pos in BoardState)
+                {
+                    if (pos.Value == PositionState.AvailableForMove)
+                        BoardState.Remove(pos);
+                }
+
+                // Selektierten Spielstein merken
                 SelectedPosition = position;
 
-                var availablePositions = MillsManager.GetAvailablePositions(BoardState, position);
+                // Mögliche Felder raussuchen
+                var tokenCount = ActivePlayer == 1 ? WhiteTokenCount : BlackTokenCount;
+                var availablePositions = MillsManager.GetAvailablePositions(BoardState, position, tokenCount);
+
+                // Und markieren
                 foreach (var pos in availablePositions)
                 {
                     BoardState.Add(pos, PositionState.AvailableForMove);
                 }
-            }       
-
-            if (ActivePlayer == 1)
-            {
-                ActivePlayer = 2;
-            }
-            else
-            {
-                ActivePlayer = 1;
             }
         }
 
@@ -191,7 +195,17 @@ namespace Mills.ViewModel
 
             if (MillsManager.CheckForMill(BoardState))
             {
-                //TODO: Spieler muss einen Spielstein entfernen
+                // TODO: Aktiver Spieler muss Stein des Gegners auswählen und entfernen
+            }
+
+            // Spielerwechsel
+            if (ActivePlayer == 1)
+            {
+                ActivePlayer = 2;
+            }
+            else
+            {
+                ActivePlayer = 1;
             }
 
             OnPropertyChanged(nameof(BoardState));
