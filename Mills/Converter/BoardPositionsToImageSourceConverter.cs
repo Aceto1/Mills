@@ -1,32 +1,38 @@
 ﻿using Mills.Enum;
+using Mills.Model;
 using Mills.Properties;
 using System;
-using System.Collections.ObjectModel;
 using System.Globalization;
-using System.Linq;
 using System.Windows.Data;
 using System.Windows.Markup;
 
 namespace Mills.Converter
 {
+    /// <summary>
+    /// Converter, der für eine angegebene Position den Wert aus dem BoardState sucht und die entsprechende Resource zurückgibt.
+    /// </summary>
     public class BoardPositionsToImageSourceConverter : MarkupExtension, IValueConverter
     {
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
-            if (value is not ObservableCollection<Tuple<ButtonPosition, int>> boardPositions || parameter is not ButtonPosition pos)
+            if (value is not ObservableDictionary<BoardPosition, PositionState> boardState || parameter is not BoardPosition position)
                 return null;
 
-            var collectionValue = boardPositions.FirstOrDefault(m => m.Item1 == pos)?.Item2;
+            var hasValue = boardState.TryGetValue(position, out var player);
 
-            if (!collectionValue.HasValue)
+            if (!hasValue)
                 return null;
 
-            return collectionValue.Value switch
-            {
-                1 => Resources.white,
-                2 => Resources.black,
-                _ => null,
-            };
+            if (player.HasFlag(PositionState.Player1))
+                return Resources.white;
+
+            if (player.HasFlag(PositionState.Player2))
+                return Resources.black;
+
+            if (player.HasFlag(PositionState.AvailableForMove))
+                return Resources.green;
+
+            return null;
         }
 
         public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
