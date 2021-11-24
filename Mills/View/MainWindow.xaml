@@ -79,5 +79,7 @@
         <Image IsHitTestVisible="False" Source="{Binding BoardState, Converter={StaticResource ResourceKey=BoardPositionsToImageSourceConverter}, ConverterParameter={x:Static Enum:BoardPosition.InnerBottomRight}}" HorizontalAlignment="Left" Margin="308,308,0,0" VerticalAlignment="Top" Width="30" Height="30"/>
 
         <Label Content="{Binding ActivePlayerText}" HorizontalAlignment="Left" Margin="505,21,0,0" VerticalAlignment="Top"/>
+        <TextBlock TextWrapping="WrapWithOverflow" Text="{Binding StatusText}" HorizontalAlignment="Left" Margin="510,51,0,0" VerticalAlignment="Top" Width="180" Height="50"/>
+        <Button Content="Neu Starten" HorizontalAlignment="Left" Margin="579,460,0,0" VerticalAlignment="Top" Command="{Binding ResetCommand}"/>
     </Grid>
 </Window>

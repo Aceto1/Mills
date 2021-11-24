@@ -6,8 +6,249 @@ namespace Mills.Model
 {
     public class MillsManager
     {
-        public static bool CheckForMill(ObservableDictionary<BoardPosition, PositionState> boardState)
+        /// <summary>
+        /// Sucht nach einer Mühle des angegeben Spielers, die die angegebene Position auf dem Spielbrett beinhaltet.
+        /// </summary>
+        /// <param name="boardState">Aktuelles Spielbrett</param>
+        /// <param name="position">Position, die überprüft werden soll</param>
+        /// <returns>Ob die angegebene Position Teil einer Mühle ist.</returns>
+        public static bool CheckForMill(ObservableDictionary<BoardPosition, PositionState> boardState, BoardPosition position, int player)
         {
+            var stringPosition = position.ToString();
+            var positionState = boardState[position];
+
+            if (positionState != (PositionState)player)
+                return false;
+
+            if (stringPosition.StartsWith("Outer"))
+            {
+                if (stringPosition.StartsWith("OuterTop"))
+                {
+                    if (stringPosition.EndsWith("Left"))
+                    {
+                        if (boardState[BoardPosition.OuterTopMiddle] == positionState && boardState[BoardPosition.OuterTopRight] == positionState)
+                            return true;
+
+                        if (boardState[BoardPosition.OuterMiddleLeft] == positionState && boardState[BoardPosition.OuterBottomLeft] == positionState)
+                            return true;
+                    }
+                    else if (stringPosition.EndsWith("Middle"))
+                    {
+                        if (boardState[BoardPosition.OuterTopRight] == positionState && boardState[BoardPosition.OuterTopLeft] == positionState)
+                            return true;
+
+                        if (boardState[BoardPosition.MiddleTopMiddle] == positionState && boardState[BoardPosition.InnerTopMiddle] == positionState)
+                            return true;
+                    }
+                    else
+                    {
+                        if (boardState[BoardPosition.OuterTopMiddle] == positionState && boardState[BoardPosition.OuterTopLeft] == positionState)
+                            return true;
+
+                        if (boardState[BoardPosition.OuterMiddleRight] == positionState && boardState[BoardPosition.OuterBottomRight] == positionState)
+                            return true;
+                    }
+                }
+                else if (stringPosition.StartsWith("OuterMiddle"))
+                {
+                    if (stringPosition.EndsWith("Left"))
+                    {
+                        if (boardState[BoardPosition.MiddleMiddleLeft] == positionState && boardState[BoardPosition.InnerMiddleLeft] == positionState)
+                            return true;
+
+                        if (boardState[BoardPosition.OuterTopLeft] == positionState && boardState[BoardPosition.OuterBottomLeft] == positionState)
+                            return true;
+                    }
+                    else
+                    {
+                        if (boardState[BoardPosition.MiddleMiddleRight] == positionState && boardState[BoardPosition.InnerMiddleRight] == positionState)
+                            return true;
+
+                        if (boardState[BoardPosition.OuterTopRight] == positionState && boardState[BoardPosition.OuterBottomRight] == positionState)
+                            return true;
+                    }
+                }
+                else
+                {
+                    if (stringPosition.EndsWith("Left"))
+                    {
+                        if (boardState[BoardPosition.OuterMiddleLeft] == positionState && boardState[BoardPosition.OuterTopLeft] == positionState)
+                            return true;
+
+                        if (boardState[BoardPosition.OuterBottomMiddle] == positionState && boardState[BoardPosition.OuterBottomRight] == positionState)
+                            return true;
+                    }
+                    else if (stringPosition.EndsWith("Middle"))
+                    {
+                        if (boardState[BoardPosition.MiddleBottomMiddle] == positionState && boardState[BoardPosition.InnerBottomMiddle] == positionState)
+                            return true;
+
+                        if (boardState[BoardPosition.OuterBottomRight] == positionState && boardState[BoardPosition.OuterBottomLeft] == positionState)
+                            return true;
+                    }
+                    else
+                    {
+                        if (boardState[BoardPosition.OuterMiddleRight] == positionState && boardState[BoardPosition.OuterTopRight] == positionState)
+                            return true;
+
+                        if (boardState[BoardPosition.OuterBottomMiddle] == positionState && boardState[BoardPosition.OuterBottomLeft] == positionState)
+                            return true;
+                    }
+                }
+            }
+            else if (stringPosition.StartsWith("Middle"))
+            {
+                if (stringPosition.StartsWith("MiddleTop"))
+                {
+                    if (stringPosition.EndsWith("Left"))
+                    {
+                        if (boardState[BoardPosition.MiddleTopMiddle] == positionState && boardState[BoardPosition.MiddleTopRight] == positionState)
+                            return true;
+
+                        if (boardState[BoardPosition.MiddleMiddleLeft] == positionState && boardState[BoardPosition.MiddleBottomLeft] == positionState)
+                            return true;
+                    }
+                    else if (stringPosition.EndsWith("Middle"))
+                    {
+                        if (boardState[BoardPosition.MiddleTopRight] == positionState && boardState[BoardPosition.MiddleTopLeft] == positionState)
+                            return true;
+
+                        if (boardState[BoardPosition.OuterTopMiddle] == positionState && boardState[BoardPosition.InnerTopMiddle] == positionState)
+                            return true;
+                    }
+                    else
+                    {
+                        if (boardState[BoardPosition.MiddleTopMiddle] == positionState && boardState[BoardPosition.MiddleTopLeft] == positionState)
+                            return true;
+
+                        if (boardState[BoardPosition.MiddleMiddleRight] == positionState && boardState[BoardPosition.MiddleBottomRight] == positionState)
+                            return true;
+                    }
+                }
+                else if (stringPosition.StartsWith("MiddleMiddle"))
+                {
+                    if (stringPosition.EndsWith("Left"))
+                    {
+                        if (boardState[BoardPosition.OuterMiddleLeft] == positionState && boardState[BoardPosition.InnerMiddleLeft] == positionState)
+                            return true;
+
+                        if (boardState[BoardPosition.MiddleTopLeft] == positionState && boardState[BoardPosition.MiddleBottomLeft] == positionState)
+                            return true;
+                    }
+                    else
+                    {
+                        if (boardState[BoardPosition.OuterMiddleRight] == positionState && boardState[BoardPosition.InnerMiddleRight] == positionState)
+                            return true;
+
+                        if (boardState[BoardPosition.MiddleTopRight] == positionState && boardState[BoardPosition.MiddleBottomRight] == positionState)
+                            return true;
+                    }
+                }
+                else
+                {
+                    if (stringPosition.EndsWith("Left"))
+                    {
+                        if (boardState[BoardPosition.MiddleMiddleLeft] == positionState && boardState[BoardPosition.MiddleTopLeft] == positionState)
+                            return true;
+
+                        if (boardState[BoardPosition.MiddleBottomMiddle] == positionState && boardState[BoardPosition.MiddleBottomRight] == positionState)
+                            return true;
+                    }
+                    else if (stringPosition.EndsWith("Middle"))
+                    {
+                        if (boardState[BoardPosition.OuterBottomMiddle] == positionState && boardState[BoardPosition.InnerBottomMiddle] == positionState)
+                            return true;
+
+                        if (boardState[BoardPosition.MiddleBottomRight] == positionState && boardState[BoardPosition.MiddleBottomLeft] == positionState)
+                            return true;
+                    }
+                    else
+                    {
+                        if (boardState[BoardPosition.MiddleMiddleRight] == positionState && boardState[BoardPosition.MiddleTopRight] == positionState)
+                            return true;
+
+                        if (boardState[BoardPosition.MiddleBottomMiddle] == positionState && boardState[BoardPosition.MiddleBottomLeft] == positionState)
+                            return true;
+                    }
+                }
+            }
+            else
+            {
+                if (stringPosition.StartsWith("InnerTop"))
+                {
+                    if (stringPosition.EndsWith("Left"))
+                    {
+                        if (boardState[BoardPosition.InnerTopMiddle] == positionState && boardState[BoardPosition.InnerTopRight] == positionState)
+                            return true;
+
+                        if (boardState[BoardPosition.InnerMiddleLeft] == positionState && boardState[BoardPosition.InnerBottomLeft] == positionState)
+                            return true;
+                    }
+                    else if (stringPosition.EndsWith("Middle"))
+                    {
+                        if (boardState[BoardPosition.InnerTopRight] == positionState && boardState[BoardPosition.InnerTopLeft] == positionState)
+                            return true;
+
+                        if (boardState[BoardPosition.OuterTopMiddle] == positionState && boardState[BoardPosition.MiddleTopMiddle] == positionState)
+                            return true;
+                    }
+                    else
+                    {
+                        if (boardState[BoardPosition.InnerTopMiddle] == positionState && boardState[BoardPosition.InnerTopLeft] == positionState)
+                            return true;
+
+                        if (boardState[BoardPosition.InnerMiddleRight] == positionState && boardState[BoardPosition.InnerBottomRight] == positionState)
+                            return true;
+                    }
+                }
+                else if (stringPosition.StartsWith("InnerMiddle"))
+                {
+                    if (stringPosition.EndsWith("Left"))
+                    {
+                        if (boardState[BoardPosition.MiddleMiddleLeft] == positionState && boardState[BoardPosition.OuterMiddleLeft] == positionState)
+                            return true;
+
+                        if (boardState[BoardPosition.InnerTopLeft] == positionState && boardState[BoardPosition.InnerBottomLeft] == positionState)
+                            return true;
+                    }
+                    else
+                    {
+                        if (boardState[BoardPosition.MiddleMiddleRight] == positionState && boardState[BoardPosition.OuterMiddleRight] == positionState)
+                            return true;
+
+                        if (boardState[BoardPosition.InnerTopRight] == positionState && boardState[BoardPosition.InnerBottomRight] == positionState)
+                            return true;
+                    }
+                }
+                else
+                {
+                    if (stringPosition.EndsWith("Left"))
+                    {
+                        if (boardState[BoardPosition.InnerMiddleLeft] == positionState && boardState[BoardPosition.InnerTopLeft] == positionState)
+                            return true;
+
+                        if (boardState[BoardPosition.InnerBottomMiddle] == positionState && boardState[BoardPosition.InnerBottomRight] == positionState)
+                            return true;
+                    }
+                    else if (stringPosition.EndsWith("Middle"))
+                    {
+                        if (boardState[BoardPosition.MiddleBottomMiddle] == positionState && boardState[BoardPosition.OuterBottomMiddle] == positionState)
+                            return true;
+
+                        if (boardState[BoardPosition.InnerBottomRight] == positionState && boardState[BoardPosition.InnerBottomLeft] == positionState)
+                            return true;
+                    }
+                    else
+                    {
+                        if (boardState[BoardPosition.InnerMiddleRight] == positionState && boardState[BoardPosition.InnerTopRight] == positionState)
+                            return true;
+
+                        if (boardState[BoardPosition.InnerBottomMiddle] == positionState && boardState[BoardPosition.InnerBottomLeft] == positionState)
+                            return true;
+                    }
+                }
+            }
+
             return false;
         }
 
@@ -17,13 +258,13 @@ namespace Mills.Model
             var moveList = new List<BoardPosition>();
 
             // 3 oder weniger Spielstein übrig, also darf der Spieler zu jedem freien Feld springen
-            if(tokensLeft <= 3)
+            if (tokensLeft <= 3)
             {
                 var enumList = System.Enum.GetValues(typeof(BoardPosition)).Cast<BoardPosition>();
 
-                foreach(var enumValue in enumList)
+                foreach (var enumValue in enumList)
                 {
-                    if(!boardState.ContainsKey(enumValue))
+                    if (!boardState.ContainsKey(enumValue))
                     {
                         moveList.Add(enumValue);
                     }
@@ -61,6 +302,7 @@ namespace Mills.Model
                         moveList.Add(BoardPosition.MiddleMiddleLeft);
                         moveList.Add(BoardPosition.OuterTopLeft);
                         moveList.Add(BoardPosition.OuterBottomLeft);
+
                     }
                     else
                     {
@@ -93,7 +335,7 @@ namespace Mills.Model
             {
                 if (stringPosition.StartsWith("MiddleTop"))
                 {
-                    if(stringPosition.EndsWith("Left"))
+                    if (stringPosition.EndsWith("Left"))
                     {
                         moveList.Add(BoardPosition.MiddleMiddleLeft);
                         moveList.Add(BoardPosition.MiddleTopMiddle);
@@ -211,7 +453,7 @@ namespace Mills.Model
             // Felder rausfiltern, auf denen bereits ein Spielstein steht
             foreach (var item in moveList)
             {
-                if(!boardState.TryGetValue(item, out var value) || value == PositionState.AvailableForMove)
+                if (!boardState.TryGetValue(item, out var value) || value == PositionState.AvailableForMove)
                 {
                     result.Add(item);
                 }

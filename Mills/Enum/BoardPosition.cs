@@ -1,7 +1,11 @@
 ﻿namespace Mills.Enum
 {
+    /// <summary>
+    /// Enum der Positionen auf dem Spielbrett
+    /// </summary>
     public enum BoardPosition
     {
+        None,
         OuterTopLeft,
         OuterTopMiddle,
         OuterTopRight,

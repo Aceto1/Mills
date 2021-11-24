@@ -7,17 +7,52 @@ using System.Runtime.CompilerServices;
 
 namespace Mills.Model
 {
+    /// <summary>
+    /// Dictionary Implementierung, die Changed-Events feuert. Dadurch ist die Implementierung für Bindings geeignet.
+    /// </summary>
+    /// <typeparam name="K">Typ des Schlüssels</typeparam>
+    /// <typeparam name="V">Typ des Wertes</typeparam>
     public class ObservableDictionary<K, V> : IDictionary<K, V>, INotifyCollectionChanged, INotifyPropertyChanged
     {
+        #region Events
+
+        public event NotifyCollectionChangedEventHandler CollectionChanged;
+
+        public event PropertyChangedEventHandler PropertyChanged;
+
+        protected virtual void OnPropertyChanged([CallerMemberName] string name = null)
+        {
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
+        }
+
+        protected virtual void OnCollectionChanged(NotifyCollectionChangedEventArgs e)
+        {
+            CollectionChanged?.Invoke(this, e);
+        }
+
+        #endregion
+
         private const string CountString = "Count";
 
-        // This must agree with Binding.IndexerName.  It is declared separately
-        // here so as to avoid a dependency on PresentationFramework.dll.
         private const string IndexerName = "Item[]";
 
         private IDictionary<K, V> dictionary =  new Dictionary<K, V>();
 
-        public V this[K key] { get => dictionary[key]; set => dictionary[key] = value; }
+        public V this[K key] 
+        { 
+            get
+            {
+                try
+                {
+                    return dictionary[key];
+                }
+                catch (System.Exception)
+                {
+                    return default(V);
+                }
+            } 
+            set => dictionary[key] = value; 
+        }
 
         public ICollection<K> Keys => dictionary.Keys;
 
@@ -26,9 +61,6 @@ namespace Mills.Model
         public int Count => dictionary.Count;
 
         public bool IsReadOnly => dictionary.IsReadOnly;
-
-        public event NotifyCollectionChangedEventHandler CollectionChanged;
-        public event PropertyChangedEventHandler PropertyChanged;
 
         public void Add(K key, V value)
         {
@@ -123,16 +155,6 @@ namespace Mills.Model
         IEnumerator IEnumerable.GetEnumerator()
         {
             return dictionary.GetEnumerator();
-        }
-
-        protected virtual void OnPropertyChanged([CallerMemberName] string name = null)
-        {
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
-        }
-
-        protected virtual void OnCollectionChanged(NotifyCollectionChangedEventArgs e)
-        {
-            CollectionChanged?.Invoke(this, e);
         }
     }
 }
