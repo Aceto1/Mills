@@ -11,6 +11,7 @@ namespace Mills.Model
         /// </summary>
         /// <param name="boardState">Aktuelles Spielbrett</param>
         /// <param name="position">Position, die überprüft werden soll</param>
+        /// <param name="player">Spieler, für den überprüft werden soll</param>
         /// <returns>Ob die angegebene Position Teil einer Mühle ist.</returns>
         public static bool CheckForMill(ObservableDictionary<BoardPosition, PositionState> boardState, BoardPosition position, int player)
         {
@@ -252,6 +253,13 @@ namespace Mills.Model
             return false;
         }
 
+        /// <summary>
+        /// Sucht die Positionen, auf die ein ausgewählter Spielstein verschoben werden darf.
+        /// </summary>
+        /// <param name="boardState">Aktuelles Spielbrett</param>
+        /// <param name="position">Position, die überprüft werden soll</param>
+        /// <param name="tokensLeft">Anzahl der Spielsteine, die der Spieler besitzt</param>
+        /// <returns>Liste der Positionen, auf die der Spielstein verschoben werden darf.</returns>
         public static BoardPosition[] GetAvailablePositions(ObservableDictionary<BoardPosition, PositionState> boardState, BoardPosition position, int tokensLeft)
         {
             var stringPosition = position.ToString();
@@ -460,6 +468,25 @@ namespace Mills.Model
             }
 
             return result.ToArray();
+        }
+
+        /// <summary>
+        /// Überprüft, ob der gewählte Spieler noch Möglichkeiten hat, seine Steine zu verschieben.
+        /// </summary>
+        /// <param name="boardState">Aktuelles Spielbrett</param>
+        /// <param name="tokensLeft">Anzahl der Spielsteine, die der Spieler besitzt</param>
+        /// <param name="player">Spieler, für den überprüft werden soll</param>
+        /// <returns>Ob der Spieler noch Zugmöglichkeiten hat.</returns>
+        public static bool HasAvailableMoves(ObservableDictionary<BoardPosition, PositionState> boardState, int tokensLeft, int player)
+        {
+            foreach (var position in boardState)
+            {
+                if (position.Value == (PositionState)player &&
+                    GetAvailablePositions(boardState, position.Key, tokensLeft).Length != 0)
+                    return true;
+            }
+
+            return false;
         }
     }
 }

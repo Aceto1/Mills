@@ -109,7 +109,7 @@ namespace Mills.ViewModel
         /// <summary>
         /// Aktive Spielphase. 
         /// 1 = Spieler platzieren abwechselnd Steine bis sie jeweils 9 platziert haben. 
-        /// 2 = Spieler bewegen abwechselnd Steine bis ein Spieler nur noch 2 beistzt und verloren hat.
+        /// 2 = Spieler bewegen abwechselnd Steine bis ein Spieler nur noch 2 besitzt und verloren hat.
         /// </summary>
         public int ActivePhase
         {
@@ -146,7 +146,7 @@ namespace Mills.ViewModel
         }
 
         /// <summary>
-        /// Anzahl der gesamten in Pahse 1 platztierten Spielsteine. Wechsel zu Pahse 2 wenn diese Variable den Wert 18 erreicht.
+        /// Anzahl der gesamten in Phase 1 platztierten Spielsteine. Wechsel zu Phase 2 wenn diese Variable den Wert 18 erreicht.
         /// </summary>
         public int TokensPlaced
         {
@@ -159,7 +159,7 @@ namespace Mills.ViewModel
         }
 
         /// <summary>
-        /// Flag, ob der "Entfernen"-Modus aktiv ist. Das bedeutet das der nächste Klick auf einen Spielstein des gegenerischen Spielers diesen entfernt.
+        /// Gibt an, ob der "Entfernen"-Modus aktiv ist. Das bedeutet das der nächste Klick auf einen Spielstein des gegenerischen Spielers diesen entfernt.
         /// </summary>
         public bool Remove
         {
@@ -299,7 +299,7 @@ namespace Mills.ViewModel
             {
                 BoardState.Remove(position);
 
-                //Anzahl der Spielsteine für gegnerischen Spieler reudzieren
+                //Anzahl der Spielsteine für gegnerischen Spieler reduzieren
                 if (ActivePlayer == 1)
                     BlackTokenCount--;
                 else
@@ -349,7 +349,7 @@ namespace Mills.ViewModel
         {
             var validTargets = new List<BoardPosition>();
 
-            // Alle Positionen des Speilbretts durchlaufen
+            // Alle Positionen des Spielbretts durchlaufen
             foreach (var position in BoardState)
             {
                 // Überprüfen das
@@ -400,11 +400,13 @@ namespace Mills.ViewModel
             if (obj is not BoardPosition btnPos)
                 return;
 
+            // Ist das Spiel vorbei?
             if (ActivePhase != 1 && (WhiteTokenCount <= 2 || BlackTokenCount <= 2))
                 return;
 
             bool moveMade;
 
+            // "Entfernen"-Modus aktiv?
             if (Remove)
                 moveMade = HandleRemoveClick(btnPos);
             else if (ActivePhase == 1)
@@ -415,13 +417,15 @@ namespace Mills.ViewModel
             if (moveMade && MillsManager.CheckForMill(BoardState, btnPos, ActivePlayer))
                 SetRemoveTargets();
 
+            // Siegbedingungen können erst ab der zweiten Phase überprüft werden
             if (ActivePhase != 1)
             {
-                if (BlackTokenCount <= 2)
+                // Wenn ein Spieler nur noch 2 Spielsteine hat oder keinen seiner Steine mehr bewegen kann, hat er verloren.
+                if (BlackTokenCount <= 2 || !MillsManager.HasAvailableMoves(BoardState, BlackTokenCount, 2))
                 {
                     StatusText = "Weiß hat gewonnen! Drücken sie \"Neu Starten\" um ein neues Spiel zu starten!";
                 }
-                else if (WhiteTokenCount <= 2)
+                else if (WhiteTokenCount <= 2 || !MillsManager.HasAvailableMoves(BoardState, WhiteTokenCount, 1))
                 {
                     StatusText = "Schwarz hat gewonnen! Drücken sie \"Neu Starten\" um ein neues Spiel zu starten!";
                 }
