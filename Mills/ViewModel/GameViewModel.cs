@@ -1,16 +1,14 @@
-﻿using System.Collections.Generic;
-using System.ComponentModel;
-using System.Net;
-using System.Net.Sockets;
-using System.Runtime.CompilerServices;
-using System.Text;
-using System.Windows.Controls;
-using Mills.View;
+﻿using Mills.Enum;
+using Mills.Model;
 using Mills.ViewModel.Base;
+using System;
+using System.Collections.Generic;
+using System.ComponentModel;
+using System.Runtime.CompilerServices;
 
 namespace Mills.ViewModel
 {
-    public class MainViewModel : INotifyPropertyChanged
+    internal class GameViewModel : INotifyPropertyChanged
     {
         #region Events
 
@@ -29,38 +27,53 @@ namespace Mills.ViewModel
 
         #region Constructor
 
-        public MainViewModel()
+        public GameViewModel()
         {
-            PageSwitcher.Instance.PageChangeRequested += (sender, pageName) =>
-            {
-                SwitchPage(sender, pageName.Pagename);
-            };
+            // Die ersten Werte ohne zufälligen Seed sind oft nicht zufällig, daher werfen wir sie hier weg
+            rnd.Next(1, 2);
+            rnd.Next(1, 2);
+            rnd.Next(1, 2);
+            rnd.Next(1, 2);
+            rnd.Next(1, 2);
 
-            PageSwitcher.Instance.SwitchPage(this, nameof(Login));
+            // Initialisierung der nötigen Poperties
+            Title = "Mühle";
+            ActivePlayer = rnd.Next(1, 2);
+            ActivePhase = 1;
+            BoardState = new ObservableDictionary<BoardPosition, PositionState>();
         }
 
         #endregion
 
         #region Fields
 
-        private readonly Dictionary<string, ContentControl> pages = new()
-        {
-            { "Login", new Login() },
-            { "Game", new Game() },
-            { "Lobby", new Lobby() },
-            { "Register", new Register() }
-        };
+        private readonly Random rnd = new();
 
         private string title;
 
-        private ContentControl content;
+        private int activePlayer;
+
+        private int activePhase;
+
+        private int whiteTokenCount;
+
+        private int blackTokenCount;
+
+        private int tokensPlaced;
+
+        private BoardPosition selectedPosition;
+
+        private bool remove;
+
+        private string statusText;
+
+        private ObservableDictionary<BoardPosition, PositionState> boardState;
 
         #endregion
 
         #region Properties
 
         /// <summary>
-<<<<<<< Updated upstream
         /// Titel des Fensters
         /// </summary>
         public string Title
@@ -96,7 +109,7 @@ namespace Mills.ViewModel
         /// <summary>
         /// Aktive Spielphase. 
         /// 1 = Spieler platzieren abwechselnd Steine bis sie jeweils 9 platziert haben. 
-        /// 2 = Spieler bewegen abwechselnd Steine bis ein Spieler nur noch 2 beistzt und verloren hat.
+        /// 2 = Spieler bewegen abwechselnd Steine bis ein Spieler nur noch 2 besitzt und verloren hat.
         /// </summary>
         public int ActivePhase
         {
@@ -133,7 +146,7 @@ namespace Mills.ViewModel
         }
 
         /// <summary>
-        /// Anzahl der gesamten in Pahse 1 platztierten Spielsteine. Wechsel zu Pahse 2 wenn diese Variable den Wert 18 erreicht.
+        /// Anzahl der gesamten in Phase 1 platztierten Spielsteine. Wechsel zu Phase 2 wenn diese Variable den Wert 18 erreicht.
         /// </summary>
         public int TokensPlaced
         {
@@ -146,7 +159,7 @@ namespace Mills.ViewModel
         }
 
         /// <summary>
-        /// Flag, ob der "Entfernen"-Modus aktiv ist. Das bedeutet das der nächste Klick auf einen Spielstein des gegenerischen Spielers diesen entfernt.
+        /// Gibt an, ob der "Entfernen"-Modus aktiv ist. Das bedeutet das der nächste Klick auf einen Spielstein des gegenerischen Spielers diesen entfernt.
         /// </summary>
         public bool Remove
         {
@@ -173,30 +186,27 @@ namespace Mills.ViewModel
 
         /// <summary>
         /// Anzeigetext, der Informationen über den Spielablauf enthält.
-=======
-        /// Der dynamische Inhalt des Fensters
->>>>>>> Stashed changes
         /// </summary>
-        public ContentControl Content
+        public String StatusText
         {
-            get => content;
+            get => statusText;
             set
             {
-                content = value;
-                OnPropertyChanged(nameof(Content));
+                statusText = value;
+                OnPropertyChanged(nameof(StatusText));
             }
         }
 
         /// <summary>
-        /// Titel des Fensters
+        /// Dictionary mit Schlüssel-Wert-Paaren die einer Position einen Wert (ob/welcher Spielstein sich darauf befindet, etc.) zuweist.
         /// </summary>
-        public string Title
+        public ObservableDictionary<BoardPosition, PositionState> BoardState
         {
-            get => title;
+            get => boardState;
             set
             {
-                title = value;
-                OnPropertyChanged(nameof(Title));
+                boardState = value;
+                OnPropertyChanged(nameof(BoardState));
             }
         }
 
@@ -204,7 +214,6 @@ namespace Mills.ViewModel
 
         #region Methods
 
-<<<<<<< Updated upstream
         public bool HandlePhaseOneClick(BoardPosition position)
         {
             // Feld mit Spielstein angeklickt = Nichts passiert
@@ -290,7 +299,7 @@ namespace Mills.ViewModel
             {
                 BoardState.Remove(position);
 
-                //Anzahl der Spielsteine für gegnerischen Spieler reudzieren
+                //Anzahl der Spielsteine für gegnerischen Spieler reduzieren
                 if (ActivePlayer == 1)
                     BlackTokenCount--;
                 else
@@ -340,7 +349,7 @@ namespace Mills.ViewModel
         {
             var validTargets = new List<BoardPosition>();
 
-            // Alle Positionen des Speilbretts durchlaufen
+            // Alle Positionen des Spielbretts durchlaufen
             foreach (var position in BoardState)
             {
                 // Überprüfen das
@@ -377,19 +386,12 @@ namespace Mills.ViewModel
             // Den "Entfernen"-Modus aktivieren
             Remove = true;
             StatusText = "Eine Mühle! Entfernen Sie einen Spielstein Ihres Gegeners.";
-=======
-        public void SwitchPage(object sender, string pageName)
-        {
-            if (pages.TryGetValue(pageName, out var page))
-                Content = page;
->>>>>>> Stashed changes
         }
 
         #endregion
 
         #region Commands
 
-<<<<<<< Updated upstream
         /// <summary>
         /// Kommando welches ausgeführt wird, wenn ein Spielfeld angeklickt wird. Erhält die angeklickte Position als Parameter.
         /// </summary>
@@ -398,11 +400,13 @@ namespace Mills.ViewModel
             if (obj is not BoardPosition btnPos)
                 return;
 
+            // Ist das Spiel vorbei?
             if (ActivePhase != 1 && (WhiteTokenCount <= 2 || BlackTokenCount <= 2))
                 return;
 
             bool moveMade;
 
+            // "Entfernen"-Modus aktiv?
             if (Remove)
                 moveMade = HandleRemoveClick(btnPos);
             else if (ActivePhase == 1)
@@ -413,13 +417,15 @@ namespace Mills.ViewModel
             if (moveMade && MillsManager.CheckForMill(BoardState, btnPos, ActivePlayer))
                 SetRemoveTargets();
 
+            // Siegbedingungen können erst ab der zweiten Phase überprüft werden
             if (ActivePhase != 1)
             {
-                if (BlackTokenCount <= 2)
+                // Wenn ein Spieler nur noch 2 Spielsteine hat oder keinen seiner Steine mehr bewegen kann, hat er verloren.
+                if (BlackTokenCount <= 2 || !MillsManager.HasAvailableMoves(BoardState, BlackTokenCount, 2))
                 {
                     StatusText = "Weiß hat gewonnen! Drücken sie \"Neu Starten\" um ein neues Spiel zu starten!";
                 }
-                else if (WhiteTokenCount <= 2)
+                else if (WhiteTokenCount <= 2 || !MillsManager.HasAvailableMoves(BoardState, WhiteTokenCount, 1))
                 {
                     StatusText = "Schwarz hat gewonnen! Drücken sie \"Neu Starten\" um ein neues Spiel zu starten!";
                 }
@@ -442,8 +448,6 @@ namespace Mills.ViewModel
         /// </summary>
         public RelayCommand ResetCommand => new((obj) => Reset());
 
-=======
->>>>>>> Stashed changes
         #endregion
     }
 }
