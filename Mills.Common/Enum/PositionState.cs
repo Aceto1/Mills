@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Mills.Enum
+namespace Mills.Common.Enum
 {
     /// <summary>
     /// Enum der möglichen Werte, die eine Position auf dem Spielbrett annehmen kann

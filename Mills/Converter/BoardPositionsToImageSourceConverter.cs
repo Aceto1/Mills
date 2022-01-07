@@ -1,4 +1,4 @@
-﻿using Mills.Enum;
+﻿using Mills.Common.Enum;
 using Mills.Model;
 using Mills.Properties;
 using System;

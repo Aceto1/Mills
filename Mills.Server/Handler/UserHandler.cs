@@ -29,19 +29,19 @@ namespace Mills.Server.Handler
             return true;
         }
 
-        public bool Login(string username, string password)
+        public int Login(string username, string password)
         {
             var user = databaseContext.Users.FirstOrDefault(m => m.Username == username);
 
             if (user == null)
-                return false;
+                return -1;
 
             var hashedPw = Encoding.UTF8.GetString(SHA256.Create().ComputeHash(Encoding.UTF8.GetBytes(password)));
 
-            if (password != hashedPw)
-                return true;
+            if (user.Password != hashedPw)
+                return -1;
 
-            return true;
+            return user.Id;
         }
     }
 }

@@ -1,4 +1,5 @@
-﻿using Mills.View;
+﻿using Mills.Model;
+using Mills.View;
 using Mills.ViewModel.Base;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
@@ -58,7 +59,10 @@ namespace Mills.ViewModel
 
         private void Login()
         {
-            PageSwitcher.Instance.SwitchPage(this, nameof(Game));
+            var result = ServerConnection.Login(username, password);
+
+            if(result)
+                PageSwitcher.Instance.SwitchPage(this, nameof(Game));
         }
 
         private void Register()

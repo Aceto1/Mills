@@ -3,8 +3,6 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:ViewModel="clr-namespace:Mills.ViewModel"
-        xmlns:Enum="clr-namespace:Mills.Enum"
-        xmlns:Converter="clr-namespace:Mills.Converter"
         x:Class="Mills.MainWindow"
         mc:Ignorable="d"
         Title="{Binding Title}"

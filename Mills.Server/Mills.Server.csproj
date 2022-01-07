@@ -6,6 +6,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\Mills.Common\Mills.Common.csproj" />
     <ProjectReference Include="..\Mills.Database\Mills.Database.csproj" />
   </ItemGroup>
 

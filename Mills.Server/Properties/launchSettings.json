@@ -1,0 +1,10 @@
+{
+  "profiles": {
+    "Mills.Server": {
+      "commandName": "Project"
+    },
+    "Profil \"1\"": {
+      "commandName": "Executable"
+    }
+  }
+}

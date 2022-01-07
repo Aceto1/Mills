@@ -1,22 +1,44 @@
 ﻿using Mills.Database;
 using Mills.Server.Handler;
+using Mills.Server.Model;
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Net;
 using System.Net.Sockets;
 using System.Text;
 
 namespace Mills.Server
 {
+    // Neue Struktur Anfagen:
+    /* Beispiel:
+     * [LOGIN] -> Methode
+     * username=Atze -> Feld
+     * password=12345 -> Feld
+     */
+    // Antwort:
+    /*
+     * [OK] -> Status
+     * sessiontoken={Guid} -> Feld
+     */
+    // Oder:
+    /*
+     * [ERROR]
+     * message="Incorrent username or password."
+     */
+
+    //TODO: Parser und Models/Enums für Anfragen bauen
     internal class Server
     {
-        private const string REGISTER = "[Register]\n";
-        private const string LOGIN = "[Login]\n";
-
         private readonly Socket listener;
 
         private static DatabaseContext databaseContext;
 
         private static UserHandler userHandler;
+
+        private static List<Client> clients = new List<Client>();
+
+        private static List<Game> games = new List<Game>();
 
         public Server()
         {
@@ -52,23 +74,9 @@ namespace Mills.Server
         {
             var bytes = new byte[1024];
             var byteCount = await socket.ReceiveAsync(bytes, SocketFlags.None);
-
             var stringValue = Encoding.UTF8.GetString(bytes, 0, byteCount);
 
-            string result = "";
-
-            if (stringValue.StartsWith(REGISTER))
-            {
-                var stringValues = stringValue[REGISTER.Length..].Split("\n");
-                result = userHandler.Register(stringValues[0], stringValues[1]) ? "OK" : "ERROR";
-            }
-            else if (stringValue.StartsWith(LOGIN))
-            {
-                var stringValues = stringValue[LOGIN.Length..].Split("\n");
-                result = userHandler.Login(stringValues[0], stringValues[1]) ? "OK" : "ERROR";
-            }
-
-            socket.Send(Encoding.UTF8.GetBytes(result));
+            var request = new Request(stringValue);
         }
     }
 }

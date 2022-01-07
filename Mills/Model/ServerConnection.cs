@@ -22,7 +22,7 @@ namespace Mills.Model
 
         public static bool Register(string username, string password)
         {
-            var toSend = $"[Register]\n{username}\n{password}";
+            var toSend = $"[REGISTER]\n{username}\n{password}";
             socket.Send(Encoding.UTF8.GetBytes(toSend));
 
             var result = new byte[1024];
@@ -31,9 +31,15 @@ namespace Mills.Model
             return Encoding.UTF8.GetString(result, 0, byteCount) == "OK";
         }
 
-        public static void Login(string username, string password)
+        public static bool Login(string username, string password)
         {
+            var toSend = $"[LOGIN]\n{username}\n{password}";
+            socket.Send(Encoding.UTF8.GetBytes(toSend));
 
+            var result = new byte[1024];
+            var byteCount = socket.Receive(result);
+
+            return Encoding.UTF8.GetString(result, 0, byteCount) == "OK";
         }
     }
 }

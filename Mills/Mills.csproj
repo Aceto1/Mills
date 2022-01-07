@@ -17,6 +17,10 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\Mills.Common\Mills.Common.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
     <Resource Include="Resources\mills.jpg" />
   </ItemGroup>
 

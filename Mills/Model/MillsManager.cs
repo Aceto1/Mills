@@ -1,4 +1,4 @@
-﻿using Mills.Enum;
+﻿using Mills.Common.Enum;
 using System.Collections.Generic;
 using System.Linq;
 
