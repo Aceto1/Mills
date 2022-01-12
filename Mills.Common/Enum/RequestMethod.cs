@@ -3,6 +3,8 @@
     public enum RequestMethod
     {
         // System
+        Ok,
+        Error,
         Login,
         Logout,
         Register,

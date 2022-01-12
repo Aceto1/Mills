@@ -1,23 +1,41 @@
 ﻿using Mills.Common.Enum;
 using Mills.Common.Helper;
+using System;
 using System.Linq;
+using System.Text;
 
 namespace Mills.Common.Model
 {
-    public class Request
+    public abstract class Request
     {
-        public Request(string requestString)
+        public Request()
         {
-            var requestLines = requestString.Split("\n");
 
-            Method = requestLines[0].ToRequestMethod();
-
-            RequestBody = RequestBodyFactory.NewRequestBody(Method);
-            RequestBody.Deserialize(requestLines[1..].Aggregate((prev, curr) => prev + "\n" + curr));
         }
 
-        public RequestMethod Method { get; set; }
+        public void Parse(string requestString)
+        {
+            var requestLines = requestString.Split('\n', StringSplitOptions.RemoveEmptyEntries);
 
-        public RequestBody RequestBody { get; set; }
+            this.Deserialize(requestLines.Aggregate((prev, curr) => prev + "\n" + curr));
+        }
+
+        public abstract RequestMethod Method { get; }
+
+        public override string ToString()
+        {
+            var sb = new StringBuilder();
+
+            sb.Append(RequestMethodMap.ToString(Method) + "\n");
+
+            sb.Append(this.Serialize(new string[1] { nameof(Method) }));
+
+            return sb.ToString();
+        }
+
+        public byte[] GetBytes()
+        {
+            return Encoding.UTF8.GetBytes(this.ToString());
+        }
     }
 }

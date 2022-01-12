@@ -13,6 +13,8 @@ namespace Mills.Common.Helper
             { "[LOGOUT]", RequestMethod.Logout },
             { "[REGISTER]", RequestMethod.Register },
             { "[SENDMESSAGE]", RequestMethod.SendMessage },
+            { "[ERROR]", RequestMethod.Error },
+            { "[OK]", RequestMethod.Ok },
         };
 
         public static RequestMethod ToRequestMethod(this string stringMethod)

@@ -2,7 +2,8 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:ViewModel="clr-namespace:Mills.ViewModel"
+        xmlns:ViewModel="clr-namespace:Mills.ViewModel" 
+        d:DataContext="{d:DesignInstance Type=ViewModel:MainViewModel}"
         x:Class="Mills.MainWindow"
         mc:Ignorable="d"
         Title="{Binding Title}"
@@ -10,9 +11,4 @@
         Width="700"
         Content="{Binding Content}"
         ResizeMode="CanMinimize">
-    <Window.DataContext>
-        <ViewModel:MainViewModel/>
-    </Window.DataContext>
-
-
 </Window>

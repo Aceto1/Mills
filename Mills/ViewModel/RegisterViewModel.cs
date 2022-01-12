@@ -1,5 +1,4 @@
 ﻿using Mills.Model;
-using Mills.View;
 using Mills.ViewModel.Base;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
@@ -76,8 +75,8 @@ namespace Mills.ViewModel
 
         private void Register()
         {
-            if (ServerConnection.Register(username, password))
-                PageSwitcher.Instance.SwitchPage(this, nameof(Login));
+            if (ServerConnection.Instance.Register(username, password))
+                PageSwitcher.Instance.SwitchPage(this, nameof(View.Login));
         }
 
         #endregion

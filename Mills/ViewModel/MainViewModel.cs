@@ -1,10 +1,9 @@
 ﻿using System.Collections.Generic;
 using System.ComponentModel;
-using System.Net;
-using System.Net.Sockets;
 using System.Runtime.CompilerServices;
-using System.Text;
+using System.Windows;
 using System.Windows.Controls;
+using Mills.Common.Enum;
 using Mills.View;
 using Mills.ViewModel.Base;
 
@@ -29,7 +28,7 @@ namespace Mills.ViewModel
 
         #region Constructor
 
-        public MainViewModel()
+        private MainViewModel()
         {
             PageSwitcher.Instance.PageChangeRequested += (sender, pageName) =>
             {
@@ -54,6 +53,8 @@ namespace Mills.ViewModel
         private string title;
 
         private ContentControl content;
+
+        private static MainViewModel instance;
 
         #endregion
 
@@ -85,6 +86,8 @@ namespace Mills.ViewModel
             }
         }
 
+        public static MainViewModel Instance => instance ?? (instance = new MainViewModel());
+
         #endregion
 
         #region Methods
@@ -95,10 +98,32 @@ namespace Mills.ViewModel
                 Content = page;
         }
 
-        #endregion
+        public void ShowMessage (string message, Severity severity)
+        {
+            string caption = "";
+            MessageBoxImage icon = MessageBoxImage.None;
 
-        #region Commands
-        
+            switch (severity)
+            {
+                case Severity.Information:
+                    caption = "Information";
+                    icon = MessageBoxImage.Information;
+                    break;
+                case Severity.Warning:
+                    caption = "Warnung";
+                    icon= MessageBoxImage.Warning;
+                    break;
+                case Severity.Error:
+                    caption = "Fehler";
+                    icon = MessageBoxImage.Error;
+                    break;
+                default:
+                    break;
+            }
+
+            MessageBox.Show(message, caption, MessageBoxButton.OK, icon);
+        }
+
         #endregion
     }
 }

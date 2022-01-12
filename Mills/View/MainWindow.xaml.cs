@@ -1,4 +1,5 @@
-﻿using System.Windows;
+﻿using Mills.ViewModel;
+using System.Windows;
 
 namespace Mills
 {
@@ -7,6 +8,8 @@ namespace Mills
         public MainWindow()
         {
             InitializeComponent();
+
+            DataContext = MainViewModel.Instance;
         }
     }
 }

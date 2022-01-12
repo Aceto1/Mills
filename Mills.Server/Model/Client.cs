@@ -1,4 +1,6 @@
-﻿using System.Net.Sockets;
+﻿using System;
+using System.Net.Sockets;
+using System.Threading;
 
 namespace Mills.Server.Model
 {
@@ -8,6 +10,8 @@ namespace Mills.Server.Model
 
         public string SessionToken { get; set; }
 
-        public Socket Socket { get; set; }
+        public TcpClient Socket { get; set; }
+
+        public CancellationTokenSource Cts { get; set; }
     }
 }
