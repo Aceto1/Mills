@@ -1,5 +1,5 @@
-﻿using Mills.Enum;
-using Mills.Model;
+﻿using Mills.Common.Enum;
+using Mills.Common.Model;
 using Mills.Properties;
 using System;
 using System.Globalization;

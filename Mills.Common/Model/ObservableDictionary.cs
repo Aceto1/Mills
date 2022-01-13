@@ -5,7 +5,7 @@ using System.ComponentModel;
 using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
 
-namespace Mills.Model
+namespace Mills.Common.Model
 {
     /// <summary>
     /// Dictionary Implementierung, die Changed-Events feuert. Dadurch ist die Implementierung für Bindings geeignet.

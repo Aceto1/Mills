@@ -1,4 +1,4 @@
-﻿namespace Mills.Enum
+﻿namespace Mills.Common.Enum
 {
     /// <summary>
     /// Enum der Positionen auf dem Spielbrett
