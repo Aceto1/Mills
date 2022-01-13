@@ -40,5 +40,15 @@ namespace Mills.Server.Global
         {
             return clients.FirstOrDefault(m => m.Socket == client);
         }
+
+        public Client GetClient(int userId)
+        {
+            return clients.FirstOrDefault(m => m.User?.UserId == userId);
+        }
+
+        public List<Client> GetAllClients()
+        {
+            return clients;
+        }
     }
 }

@@ -1,16 +1,15 @@
 ﻿using Mills.Common.Enum;
 using Mills.Common.Model;
+using Mills.Common.Model.Dto;
 using Mills.Database;
 using Mills.Database.Entities.User;
 using Mills.Server.Global;
-using Mills.Server.Model;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Net.Sockets;
 using System.Security.Cryptography;
 using System.Text;
-using System.Threading;
-using System.Threading.Tasks;
 
 namespace Mills.Server.Handler
 {
@@ -43,7 +42,7 @@ namespace Mills.Server.Handler
             databaseContext.Users.Add(user);
             databaseContext.SaveChanges();
 
-            return new OkRequest();
+            return new RegisteredRequest();
         }
 
         public Request Login(LoginRequest request, TcpClient socket)
@@ -66,11 +65,30 @@ namespace Mills.Server.Handler
                     Severity = Severity.Error
                 };
 
+            var client = Clients.Instance.GetClient(user.Id);
+
+            if (client != null)
+                return new ErrorRequest()
+                {
+                    Message = "Sie sind bereits in einer anderen Sitzung angemeldet.",
+                    Severity = Severity.Error
+                };
+
             var sessionId = Guid.NewGuid().ToString();
 
-            return new OkRequest()
+            client = Clients.Instance.GetClient(socket);
+            client.SessionToken = sessionId;
+            client.User = new UserDto
             {
-                SessionId = sessionId
+                UserId = user.Id,
+                Username = request.Username,
+                Status = UserStatus.Online,
+            };
+
+            return new LoggedInRequest()
+            {
+                SessionId = sessionId,
+                User = client.User
             };
         }
 
@@ -78,11 +96,35 @@ namespace Mills.Server.Handler
         {
             var client = Clients.Instance.GetClient(request.SessionId);
 
-            if(client != null)
+            if (client != null)
             {
                 client.Cts.Cancel();
                 Clients.Instance.RemoveClient(request.SessionId);
             }
+        }
+
+        public SendActiveUsersRequest GetActiveUsers()
+        {
+            var clients = Clients.Instance.GetAllClients();
+
+            var users = new List<UserDto>();
+
+            foreach (var client in clients)
+            {
+                var user = databaseContext.Users.FirstOrDefault(m => m.Id == client.User.UserId);
+
+                users.Add(new UserDto
+                {
+                    UserId = user.Id,
+                    Username = user.Username,
+                    Status = Games.Instance.IsUserIngame(user.Id) ? UserStatus.Ingame : UserStatus.Online,
+                });
+            }
+
+            return new SendActiveUsersRequest()
+            {
+                Users = users.ToArray(),
+            };
         }
     }
 }

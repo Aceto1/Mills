@@ -11,9 +11,10 @@ namespace Mills.Server
             server = new Server();
             server.StartListening();
 
-            while(true)
+            Console.WriteLine("Type \"q\" to quit.");
+
+            while (true)
             {
-                Console.WriteLine("Type \"q\" to quit.");
                 var input = Console.ReadLine();
 
                 if (input == "q")

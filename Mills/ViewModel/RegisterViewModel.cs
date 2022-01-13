@@ -75,15 +75,14 @@ namespace Mills.ViewModel
 
         private void Register()
         {
-            if (ServerConnection.Instance.Register(username, password))
-                PageSwitcher.Instance.SwitchPage(this, nameof(View.Login));
+            ServerConnection.Instance.Register(username, password);
         }
 
         #endregion
 
         #region Commands
 
-        public RelayCommand RegisterCommand => new((obj) => Register(), 
+        public RelayCommand RegisterCommand => new((obj) => Register(),
             (obj) => !string.IsNullOrEmpty(Username) && !string.IsNullOrEmpty(Password) && !string.IsNullOrEmpty(PasswordRepeat) && Password == PasswordRepeat);
 
         public RelayCommand LoginCommand => new((obj) => Login());

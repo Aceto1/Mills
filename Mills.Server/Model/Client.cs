@@ -1,4 +1,4 @@
-﻿using System;
+﻿using Mills.Common.Model.Dto;
 using System.Net.Sockets;
 using System.Threading;
 
@@ -6,7 +6,7 @@ namespace Mills.Server.Model
 {
     public class Client
     {
-        public int UserId { get; set; }
+        public UserDto User { get; set; }
 
         public string SessionToken { get; set; }
 

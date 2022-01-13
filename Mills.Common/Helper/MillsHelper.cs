@@ -1,10 +1,11 @@
 ﻿using Mills.Common.Enum;
+using Mills.Common.Model;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace Mills.Model
+namespace Mills.Common.Helper
 {
-    public class MillsManager
+    public class MillsHelper
     {
         /// <summary>
         /// Sucht nach einer Mühle des angegeben Spielers, die die angegebene Position auf dem Spielbrett beinhaltet.
@@ -13,12 +14,12 @@ namespace Mills.Model
         /// <param name="position">Position, die überprüft werden soll</param>
         /// <param name="player">Spieler, für den überprüft werden soll</param>
         /// <returns>Ob die angegebene Position Teil einer Mühle ist.</returns>
-        public static bool CheckForMill(ObservableDictionary<BoardPosition, PositionState> boardState, BoardPosition position, int player)
+        public static bool CheckForMill(ObservableDictionary<BoardPosition, PositionState> boardState, BoardPosition position, PositionState player)
         {
             var stringPosition = position.ToString();
             var positionState = boardState[position];
 
-            if (positionState != (PositionState)player)
+            if (positionState != player)
                 return false;
 
             if (stringPosition.StartsWith("Outer"))
@@ -477,16 +478,55 @@ namespace Mills.Model
         /// <param name="tokensLeft">Anzahl der Spielsteine, die der Spieler besitzt</param>
         /// <param name="player">Spieler, für den überprüft werden soll</param>
         /// <returns>Ob der Spieler noch Zugmöglichkeiten hat.</returns>
-        public static bool HasAvailableMoves(ObservableDictionary<BoardPosition, PositionState> boardState, int tokensLeft, int player)
+        public static bool HasAvailableMoves(ObservableDictionary<BoardPosition, PositionState> boardState, int tokensLeft, PositionState player)
         {
             foreach (var position in boardState)
             {
-                if (position.Value == (PositionState)player &&
+                if (position.Value == player &&
                     GetAvailablePositions(boardState, position.Key, tokensLeft).Length != 0)
                     return true;
             }
 
             return false;
+        }
+
+        public static void SetRemoveTargets(ObservableDictionary<BoardPosition, PositionState> boardState, PositionState activePlayer)
+        {
+            var validTargets = new List<BoardPosition>();
+
+            // Alle Positionen des Spielbretts durchlaufen
+            foreach (var position in boardState)
+            {
+                // Überprüfen das
+                // 1. An der aktuellen Stelle kein eigener Spielstein ist
+                // 2. Die aktuelle Stelle nicht Teil einer Mühle ist
+                if (position.Value != (PositionState)activePlayer &&
+                    !MillsHelper.CheckForMill(boardState, position.Key, position.Value))
+                {
+                    validTargets.Add(position.Key);
+                }
+            }
+
+            // Sollten sich aus dem vorherigen Durchlauf keine validen Spielsteine ergeben haben (weil alle gegnerischen Teil einer Mühle sind)
+            // werden alle Spielsteine des Gegners als valide markiert
+            if (validTargets.Count == 0)
+            {
+                foreach (var position in boardState)
+                {
+                    if (position.Value != (PositionState)activePlayer)
+                    {
+                        boardState[position.Key] |= PositionState.RemoveTarget;
+                    }
+                }
+            }
+            // Ansonsten werden die Spielsteine aus dem vorherigen Durchlauf markiert
+            else
+            {
+                foreach (var position in validTargets)
+                {
+                    boardState[position] |= PositionState.RemoveTarget;
+                }
+            }
         }
     }
 }

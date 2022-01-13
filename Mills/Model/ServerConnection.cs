@@ -1,11 +1,13 @@
 ﻿using Mills.Common.Enum;
 using Mills.Common.Helper;
 using Mills.Common.Model;
+using Mills.Common.Model.Dto;
+using Mills.View;
 using Mills.ViewModel;
-using System;
+using System.Collections.ObjectModel;
+using System.Linq;
 using System.Net;
 using System.Net.Sockets;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -27,18 +29,20 @@ namespace Mills.Model
             IPAddress ipAddress = host.AddressList[0];
             IPEndPoint localEndPoint = new IPEndPoint(ipAddress, 11000);
 
-            // Create a Socket that will use Tcp protocol
             socket = new TcpClient();
             socket.Connect(localEndPoint);
 
             Task.Factory.StartNew(() =>
             {
-                if (socket.GetStream().DataAvailable)
+                while (true)
                 {
-                    HandleConnection();
-                }
+                    if (socket.GetStream().DataAvailable)
+                    {
+                        HandleConnection();
+                    }
 
-                Thread.Sleep(50);
+                    Thread.Sleep(50);
+                }
             });
         }
 
@@ -46,59 +50,109 @@ namespace Mills.Model
         {
             var bytes = new byte[1024];
             var byteCount = await socket.GetStream().ReadAsync(bytes);
-            var stringValue = Encoding.UTF8.GetString(bytes, 0, byteCount).Trim('\0');
 
-            var request = RequestHelper.ParseRequest(stringValue);
+            var request = bytes.Deserialize(byteCount);
+
+            switch (request.Method)
+            {
+                case RequestMethod.Error:
+                    MainViewModel.Instance.ShowMessage((request as ErrorRequest)?.Message, (request as ErrorRequest)?.Severity ?? Severity.Error);
+                    break;
+                case RequestMethod.LoggedIn:
+                    MainViewModel.Instance.CurrentUser = (request as LoggedInRequest).User;
+                    sessionId = (request as LoggedInRequest).SessionId;
+                    MainViewModel.Instance.SwitchPage(this, nameof(View.Lobby));
+                    break;
+                case RequestMethod.Registered:
+                    MainViewModel.Instance.SwitchPage(this, nameof(View.Login));
+                    break;
+                case RequestMethod.SendActiveUsers:
+                    LobbyViewModel.Instance.Users = new ObservableCollection<UserDto>((request as SendActiveUsersRequest).Users.Where(m => m.UserId != MainViewModel.Instance.CurrentUser.UserId));
+                    break;
+                case RequestMethod.SendChallenges:
+                    LobbyViewModel.Instance.MyChallenges = new ObservableCollection<ChallengeDto>((request as SendChallengesRequest).MyChallenges);
+                    LobbyViewModel.Instance.ChallengesAgainstMe = new ObservableCollection<ChallengeDto>((request as SendChallengesRequest).ChallengesAgainstMe);
+                    break;
+                case RequestMethod.GameStarted:
+                    MainViewModel.Instance.SwitchPage(this, nameof(Game));
+                    // Spielfeld zurücksetzen
+                    GameViewModel.Instance.Reset();
+
+                    // Wenn man startet ist man Spieler 1
+                    if ((request as GameStartedRequest).Starting)
+                        GameViewModel.Instance.OwnColor = PositionState.Player1;
+                    else
+                        GameViewModel.Instance.OwnColor = PositionState.Player2;
+                    break;
+                case RequestMethod.SendMessage:
+                    break;
+                case RequestMethod.Placed:
+                    GameViewModel.Instance.BoardState.Add((request as PlacedRequest).Position, GameViewModel.Instance.ActivePlayer);
+                    GameViewModel.Instance.OnPropertyChanged(nameof(GameViewModel.Instance.BoardState));
+                    if ((request as PlacedRequest).Remove)
+                        GameViewModel.Instance.Remove = true;
+                    else
+                        GameViewModel.Instance.SwitchPlayers();
+
+                    if ((request as PlacedRequest).PhaseChange)
+                        GameViewModel.Instance.Phase++;
+                    break;
+                case RequestMethod.Moved:
+                    GameViewModel.Instance.BoardState.Remove((request as MovedRequest).From);
+                    GameViewModel.Instance.BoardState.Add((request as MovedRequest).To, GameViewModel.Instance.ActivePlayer);
+                    GameViewModel.Instance.OnPropertyChanged(nameof(GameViewModel.Instance.BoardState));
+                    if ((request as MovedRequest).Remove)
+                        GameViewModel.Instance.Remove = true;
+                    else
+                        GameViewModel.Instance.SwitchPlayers();
+                    break;
+                case RequestMethod.Removed:
+                    GameViewModel.Instance.BoardState.Remove((request as RemovedRequest).Position);
+                    GameViewModel.Instance.OnPropertyChanged(nameof(GameViewModel.Instance.BoardState));
+                    GameViewModel.Instance.Remove = false;
+                    GameViewModel.Instance.SwitchPlayers();
+                    break;
+                case RequestMethod.Lose:
+                    MainViewModel.Instance.ShowMessage("Sie haben das Spiel verloren!", Severity.Information);
+                    MainViewModel.Instance.SwitchPage(this, nameof(Lobby));
+                    // Spielfeld zurücksetzen
+                    GameViewModel.Instance.Reset();
+                    break;
+                case RequestMethod.Win:
+                    MainViewModel.Instance.ShowMessage("Sie haben das Spiel gewonnen!", Severity.Information);
+                    MainViewModel.Instance.SwitchPage(this, nameof(Lobby));
+                    // Spielfeld zurücksetzen
+                    GameViewModel.Instance.Reset();
+                    break;
+                default:
+                    break;
+            }
         }
 
-        public bool Register(string username, string password)
+        public void Register(string username, string password)
         {
             var request = new RegisterRequest();
 
             request.Username = username;
             request.Password = password;
 
-            socket.GetStream().Write(Encoding.UTF8.GetBytes(request.ToString()));
-
-            var result = new byte[1024];
-            socket.GetStream().Read(result);
-
-            var response = RequestHelper.ParseRequest(Encoding.UTF8.GetString(result));
-
-            if (response.Method == RequestMethod.Ok)
-                return true;
-
-            MainViewModel.Instance.ShowMessage((response as ErrorRequest)?.Message, (response as ErrorRequest)?.Severity ?? Severity.Error);
-
-            return false;
+            socket.GetStream().Write(request.SerializeToBytes());
         }
 
-        public bool Login(string username, string password)
+        public void Login(string username, string password)
         {
             if (sessionId != null)
-                return false;
+            {
+                MainViewModel.Instance.ShowMessage("Sie sind bereits eingeloggt.", Severity.Information);
+                return;
+            }
 
             var request = new LoginRequest();
 
             request.Username = username;
             request.Password = password;
 
-            socket.GetStream().Write(Encoding.UTF8.GetBytes(request.ToString()));
-
-            var result = new byte[1024];
-            socket.GetStream().Read(result);
-
-            var response = RequestHelper.ParseRequest(Encoding.UTF8.GetString(result));
-
-            if (response.Method == RequestMethod.Ok)
-            {
-                sessionId = ((OkRequest)response).SessionId;
-                return true;
-            }
-
-            MainViewModel.Instance.ShowMessage((response as ErrorRequest)?.Message, (response as ErrorRequest)?.Severity ?? Severity.Error);
-
-            return false;
+            socket.GetStream().Write(request.SerializeToBytes());
         }
 
         public void Logout()
@@ -110,7 +164,7 @@ namespace Mills.Model
 
             request.SessionId = sessionId;
 
-            socket.GetStream().Write(Encoding.UTF8.GetBytes(request.ToString()));
+            socket.GetStream().Write(request.SerializeToBytes());
 
             sessionId = null;
         }
@@ -120,6 +174,71 @@ namespace Mills.Model
             Logout();
 
             socket.Close();
+        }
+
+        public void Challenge(UserDto user)
+        {
+            var request = new ChallengeRequest();
+
+            request.FromUserId = MainViewModel.Instance.CurrentUser.UserId;
+            request.ToUserId = user.UserId;
+            request.SessionId = sessionId;
+
+            socket.GetStream().Write(request.SerializeToBytes());
+        }
+
+        public void AcceptChallenge(ChallengeDto challenge)
+        {
+            var request = new ChallengeAcceptedRequest();
+
+            request.FromUserId = challenge.FromUserId;
+            request.ToUserId = challenge.ToUserId;
+            request.SessionId = sessionId;
+
+            socket.GetStream().Write(request.SerializeToBytes());
+        }
+
+        public void CancelChallenge(ChallengeDto challenge)
+        {
+            var request = new ChallengeCancelledRequest();
+
+            request.FromUserId = challenge.FromUserId;
+            request.ToUserId = challenge.ToUserId;
+            request.SessionId = sessionId;
+
+            socket.GetStream().Write(request.SerializeToBytes());
+        }
+
+        public void Place(BoardPosition position)
+        {
+            var request = new PlaceRequest();
+
+            request.Position = position;
+            request.SessionId = sessionId;
+            request.Player = MainViewModel.Instance.CurrentUser;
+
+            socket.GetStream().Write(request.SerializeToBytes());
+        }
+
+        public void Move(BoardPosition from, BoardPosition to)
+        {
+            var request = new MoveRequest();
+
+            request.From = from;
+            request.To = to;
+            request.SessionId = sessionId;
+
+            socket.GetStream().Write(request.SerializeToBytes());
+        }
+
+        public void Remove(BoardPosition position)
+        {
+            var request = new RemoveRequest();
+
+            request.Position = position;
+            request.SessionId = sessionId;
+
+            socket.GetStream().Write(request.SerializeToBytes());
         }
     }
 }

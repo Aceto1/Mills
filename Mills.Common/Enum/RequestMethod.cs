@@ -2,22 +2,32 @@
 {
     public enum RequestMethod
     {
+        None,
+
         // System
-        Ok,
         Error,
         Login,
+        LoggedIn,
         Logout,
         Register,
-        GetActiveUsers,
+        Registered,
+        SendActiveUsers,
         Challenge,
+        SendChallenges,
+        ChallengeAccepted,
+        ChallengeCancelled,
+        GameStarted,
         SendMessage,
-        ReceiveMessage,
 
         //Gameplay
         Place,
+        Placed,
         Move,
+        Moved,
         Remove,
+        Removed,
         Lose,
-        Win
+        Win,
+        Forfeit
     }
 }

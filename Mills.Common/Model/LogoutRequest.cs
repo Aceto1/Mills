@@ -4,7 +4,10 @@ namespace Mills.Common.Model
 {
     public class LogoutRequest : Request
     {
-        public override RequestMethod Method => RequestMethod.Logout;
+        public LogoutRequest()
+        {
+            Method = RequestMethod.Logout;
+        }
 
         public string SessionId { get; set; }
     }

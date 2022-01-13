@@ -59,10 +59,7 @@ namespace Mills.ViewModel
 
         private void Login()
         {
-            var result = ServerConnection.Instance.Login(username, password);
-
-            if(result)
-                PageSwitcher.Instance.SwitchPage(this, nameof(Game));
+            ServerConnection.Instance.Login(username, password);
         }
 
         private void Register()

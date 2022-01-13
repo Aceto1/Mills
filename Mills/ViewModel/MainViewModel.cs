@@ -4,6 +4,7 @@ using System.Runtime.CompilerServices;
 using System.Windows;
 using System.Windows.Controls;
 using Mills.Common.Enum;
+using Mills.Common.Model.Dto;
 using Mills.View;
 using Mills.ViewModel.Base;
 
@@ -44,17 +45,17 @@ namespace Mills.ViewModel
 
         private readonly Dictionary<string, ContentControl> pages = new()
         {
-            { "Login", new Login() },
-            { "Game", new Game() },
-            { "Lobby", new Lobby() },
-            { "Register", new Register() }
+            { nameof(Login), new Login() },
+            { nameof(Game), new Game() },
+            { nameof(Lobby), new Lobby() },
+            { nameof(Register), new Register() }
         };
-
-        private string title;
 
         private ContentControl content;
 
         private static MainViewModel instance;
+
+        private UserDto currentUser;
 
         #endregion
 
@@ -76,12 +77,15 @@ namespace Mills.ViewModel
         /// <summary>
         /// Titel des Fensters
         /// </summary>
-        public string Title
-        {
-            get => title;
+        public string Title => "Mühle" + CurrentUser == null ? $" - {CurrentUser.Username}" : "";
+
+        public UserDto CurrentUser 
+        { 
+            get => currentUser; 
             set
             {
-                title = value;
+                currentUser = value;
+                OnPropertyChanged(nameof(CurrentUser));
                 OnPropertyChanged(nameof(Title));
             }
         }
@@ -98,7 +102,7 @@ namespace Mills.ViewModel
                 Content = page;
         }
 
-        public void ShowMessage (string message, Severity severity)
+        public void ShowMessage(string message, Severity severity)
         {
             string caption = "";
             MessageBoxImage icon = MessageBoxImage.None;
@@ -111,7 +115,7 @@ namespace Mills.ViewModel
                     break;
                 case Severity.Warning:
                     caption = "Warnung";
-                    icon= MessageBoxImage.Warning;
+                    icon = MessageBoxImage.Warning;
                     break;
                 case Severity.Error:
                     caption = "Fehler";

@@ -1,9 +1,12 @@
 ﻿using Mills.Common.Enum;
+using Mills.Common.Helper;
+using Mills.Common.Model;
 using Mills.Model;
 using Mills.ViewModel.Base;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Linq;
 using System.Runtime.CompilerServices;
 
 namespace Mills.ViewModel
@@ -18,7 +21,7 @@ namespace Mills.ViewModel
         /// Löst das PropertyChanged-Event mit dem angegebenen Propertynamen aus.
         /// </summary>
         /// <param name="name"></param>
-        protected void OnPropertyChanged([CallerMemberName] string name = null)
+        public void OnPropertyChanged([CallerMemberName] string name = null)
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
         }
@@ -27,19 +30,10 @@ namespace Mills.ViewModel
 
         #region Constructor
 
-        public GameViewModel()
+        private GameViewModel()
         {
-            // Die ersten Werte ohne zufälligen Seed sind oft nicht zufällig, daher werfen wir sie hier weg
-            rnd.Next(1, 2);
-            rnd.Next(1, 2);
-            rnd.Next(1, 2);
-            rnd.Next(1, 2);
-            rnd.Next(1, 2);
-
-            // Initialisierung der nötigen Poperties
-            Title = "Mühle";
-            ActivePlayer = rnd.Next(1, 2);
-            ActivePhase = 1;
+            Phase = 1;
+            ActivePlayer = PositionState.Player1;
             BoardState = new ObservableDictionary<BoardPosition, PositionState>();
         }
 
@@ -47,19 +41,9 @@ namespace Mills.ViewModel
 
         #region Fields
 
-        private readonly Random rnd = new();
+        private PositionState activePlayer;
 
-        private string title;
-
-        private int activePlayer;
-
-        private int activePhase;
-
-        private int whiteTokenCount;
-
-        private int blackTokenCount;
-
-        private int tokensPlaced;
+        private int phase;
 
         private BoardPosition selectedPosition;
 
@@ -69,33 +53,22 @@ namespace Mills.ViewModel
 
         private ObservableDictionary<BoardPosition, PositionState> boardState;
 
+        private static GameViewModel instance;
+
         #endregion
 
         #region Properties
 
         /// <summary>
-        /// Titel des Fensters
-        /// </summary>
-        public string Title
-        {
-            get => title;
-            set
-            {
-                title = value;
-                OnPropertyChanged(nameof(Title));
-            }
-        }
-
-        /// <summary>
         /// Formatierter String der anzeigt, welcher Spieler gerade dran ist
         /// </summary>
-        public string ActivePlayerText => $"{(activePlayer == 1 ? "Weiß" : "Schwarz")} ist an der Reihe";
+        public string ActivePlayerText => $"{(activePlayer == OwnColor ? "Sie" : "Ihr Gegner")} ist an der Reihe";
 
         /// <summary>
         /// Gerade aktiver Spieler.
         /// Spieler 1 = Weiß, Spieler 2 = Schwarz
         /// </summary>
-        public int ActivePlayer
+        public PositionState ActivePlayer
         {
             get => activePlayer;
             set
@@ -111,50 +84,13 @@ namespace Mills.ViewModel
         /// 1 = Spieler platzieren abwechselnd Steine bis sie jeweils 9 platziert haben. 
         /// 2 = Spieler bewegen abwechselnd Steine bis ein Spieler nur noch 2 besitzt und verloren hat.
         /// </summary>
-        public int ActivePhase
+        public int Phase
         {
-            get => activePhase;
+            get => phase;
             set
             {
-                activePhase = value;
-                OnPropertyChanged(nameof(ActivePhase));
-            }
-        }
-
-        /// <summary>
-        /// Anzahl der weißen Spielsteine auf dem Spielfeld.
-        /// </summary>
-        public int WhiteTokenCount
-        {
-            get => whiteTokenCount; set
-            {
-                whiteTokenCount = value;
-                OnPropertyChanged(nameof(WhiteTokenCount));
-            }
-        }
-
-        /// <summary>
-        /// Anzahl der schwarzen Spielsteine auf dem Spielfeld.
-        /// </summary>
-        public int BlackTokenCount
-        {
-            get => blackTokenCount; set
-            {
-                blackTokenCount = value;
-                OnPropertyChanged(nameof(BlackTokenCount));
-            }
-        }
-
-        /// <summary>
-        /// Anzahl der gesamten in Phase 1 platztierten Spielsteine. Wechsel zu Phase 2 wenn diese Variable den Wert 18 erreicht.
-        /// </summary>
-        public int TokensPlaced
-        {
-            get => tokensPlaced;
-            set
-            {
-                tokensPlaced = value;
-                OnPropertyChanged(nameof(TokensPlaced));
+                phase = value;
+                OnPropertyChanged(nameof(Phase));
             }
         }
 
@@ -166,8 +102,18 @@ namespace Mills.ViewModel
             get => remove;
             set
             {
+                if(!remove && value)
+                {
+                    StatusText = (ActivePlayer == OwnColor ? "Sie dürfen" : "Ihr Gegner darf") + " einen Stein entfernen.";
+                }
+                else if(!value && remove)
+                {
+                    StatusText = "";
+                }
+
                 remove = value;
                 OnPropertyChanged(nameof(Remove));
+                OnPropertyChanged(nameof(StatusText));
             }
         }
 
@@ -210,40 +156,38 @@ namespace Mills.ViewModel
             }
         }
 
+        public static GameViewModel Instance => instance ?? (instance = new GameViewModel());
+
+        public DateTime LastAction = DateTime.MinValue;
+
+        public PositionState OwnColor { get; set; }
+
         #endregion
 
         #region Methods
 
-        public bool HandlePhaseOneClick(BoardPosition position)
+        public void SwitchPlayers()
+        {
+            if (ActivePlayer == PositionState.Player1)
+                ActivePlayer = PositionState.Player2;
+            else
+                ActivePlayer = PositionState.Player1;
+        }
+
+        public void HandlePhaseOneClick(BoardPosition position)
         {
             // Feld mit Spielstein angeklickt = Nichts passiert
             if (BoardState.ContainsKey(position))
-                return false;
+                return;
 
-            BoardState.Add(new KeyValuePair<BoardPosition, PositionState>(position, (PositionState)ActivePlayer));
-
-            // Anzahl der platzierten Spielstein erhöhen
-            TokensPlaced++;
-
-            if (ActivePlayer == 1)
-                WhiteTokenCount++;
-            else
-                BlackTokenCount++;
-
-            // Phase 2 beginnt, wenn beide Spieler 9 Steine platziert haben
-            if (TokensPlaced == 18)
-            {
-                ActivePhase++;
-            }
-
-            return true;
+            ServerConnection.Instance.Place(position);
         }
 
-        public bool HandlePhaseTwoClick(BoardPosition position)
+        public void HandlePhaseTwoClick(BoardPosition position)
         {
             //Leeres Feld angeklickt = Nichts passiert
             if (!BoardState.ContainsKey(position))
-                return false;
+                return;
 
             var value = BoardState[position];
 
@@ -256,11 +200,7 @@ namespace Mills.ViewModel
                         BoardState.Remove(pos);
                 };
 
-                // Vorher selektierten Spielstein auf gerade ausgewählt Position verschieben und alte Position löschen
-                BoardState.Add(position, BoardState[selectedPosition]);
-                BoardState.Remove(selectedPosition);
-
-                return true;
+                ServerConnection.Instance.Move(SelectedPosition, position);
             }
             else if (value == (PositionState)ActivePlayer)
             {
@@ -275,8 +215,8 @@ namespace Mills.ViewModel
                 SelectedPosition = position;
 
                 // Mögliche Felder raussuchen
-                var tokenCount = ActivePlayer == 1 ? WhiteTokenCount : BlackTokenCount;
-                var availablePositions = MillsManager.GetAvailablePositions(BoardState, position, tokenCount);
+                var tokenCount = BoardState.Where(m => m.Value == OwnColor).Count();
+                var availablePositions = MillsHelper.GetAvailablePositions(BoardState, position, tokenCount);
 
                 // Und markieren
                 foreach (var pos in availablePositions)
@@ -284,108 +224,25 @@ namespace Mills.ViewModel
                     BoardState.Add(pos, PositionState.AvailableForMove);
                 }
             }
-
-            return false;
         }
 
-        public bool HandleRemoveClick(BoardPosition position)
+        public void HandleRemoveClick(BoardPosition position)
         {
             //Leeres Feld angeklickt = Nichts passiert
             if (!BoardState.ContainsKey(position))
-                return false;
+                return;
 
-            // Überprüfen, ob der Wert der Posotion das Remove-Flag hat
-            if (BoardState[position].HasFlag(PositionState.RemoveTarget))
-            {
-                BoardState.Remove(position);
-
-                //Anzahl der Spielsteine für gegnerischen Spieler reduzieren
-                if (ActivePlayer == 1)
-                    BlackTokenCount--;
-                else
-                    WhiteTokenCount--;
-
-                // Flag auf restlichen Positionen entfernen
-                foreach (var pos in BoardState)
-                {
-                    if (pos.Value.HasFlag(PositionState.RemoveTarget))
-                        BoardState[pos.Key] = pos.Value & ~PositionState.RemoveTarget;
-                }
-
-                // "Entfernen" Modus verlassen
-                Remove = false;
-                StatusText = "";
-
-                return true;
-            }
-
-            return false;
+            ServerConnection.Instance.Remove(position);
         }
 
-        /// <summary>
-        /// Setzt das Spiel zurück und startet ein neues
-        /// </summary>
         public void Reset()
         {
             BoardState = new ObservableDictionary<BoardPosition, PositionState>();
-            ActivePhase = 1;
-            ActivePlayer = rnd.Next(1, 2);
-            TokensPlaced = 0;
-            WhiteTokenCount = 0;
-            BlackTokenCount = 0;
-            SelectedPosition = BoardPosition.None;
-            Remove = false;
+            Phase = 1;
+            ActivePlayer = PositionState.Player1;
             StatusText = "";
-        }
-
-        /// <summary>
-        /// Markiert alle Spielsteine mit einem entsprechenden Flag, wenn sie entfernt werden können.
-        /// Dabei müssen die jeweiligen Spielsteine folgende Bedinungen erfüllen:
-        /// 1. Die Spielsteine müssen dem generischen Spieler gehören
-        /// 2. Die Spielsteine dürfen sich nicht in einer Mühle befinden
-        /// 3. Sollte der gegnersiche Spieler nur Mühlen auf dem Feld besitzen, darf ein beliebiger seiner Steine entfernt werden
-        /// </summary>
-        public void SetRemoveTargets()
-        {
-            var validTargets = new List<BoardPosition>();
-
-            // Alle Positionen des Spielbretts durchlaufen
-            foreach (var position in BoardState)
-            {
-                // Überprüfen das
-                // 1. An der aktuellen Stelle kein eigener Spielstein ist
-                // 2. Die aktuelle Stelle nicht Teil einer Mühle ist
-                if (position.Value != (PositionState)ActivePlayer &&
-                    !MillsManager.CheckForMill(BoardState, position.Key, (int)position.Value))
-                {
-                    validTargets.Add(position.Key);
-                }
-            }
-
-            // Sollten sich aus dem vorherigen Durchlauf keine validen Spielsteine ergeben haben (weil alle gegnerischen Teil einer Mühle sind)
-            // werden alle Spielsteine des Gegners als valide markiert
-            if (validTargets.Count == 0)
-            {
-                foreach (var position in BoardState)
-                {
-                    if (position.Value != (PositionState)ActivePlayer)
-                    {
-                        BoardState[position.Key] |= PositionState.RemoveTarget;
-                    }
-                }
-            }
-            // Ansonsten werden die Spielsteine aus dem vorherigen Durchlauf markiert
-            else
-            {
-                foreach (var position in validTargets)
-                {
-                    BoardState[position] |= PositionState.RemoveTarget;
-                }
-            }
-
-            // Den "Entfernen"-Modus aktivieren
-            Remove = true;
-            StatusText = "Eine Mühle! Entfernen Sie einen Spielstein Ihres Gegeners.";
+            Remove = false;
+            LastAction = DateTime.MinValue;
         }
 
         #endregion
@@ -397,56 +254,29 @@ namespace Mills.ViewModel
         /// </summary>
         public RelayCommand ButtonClickCommand => new((obj) =>
         {
+            // Sind wir an der Reihe?
+            if (ActivePlayer != OwnColor)
+                return;
+
             if (obj is not BoardPosition btnPos)
                 return;
 
-            // Ist das Spiel vorbei?
-            if (ActivePhase != 1 && (WhiteTokenCount <= 2 || BlackTokenCount <= 2))
+            // "Debounce", damit man keine Aktionen spammen kann
+            if (LastAction.AddSeconds(1) >= DateTime.UtcNow)
                 return;
-
-            bool moveMade;
 
             // "Entfernen"-Modus aktiv?
             if (Remove)
-                moveMade = HandleRemoveClick(btnPos);
-            else if (ActivePhase == 1)
-                moveMade = HandlePhaseOneClick(btnPos);
+                HandleRemoveClick(btnPos);
+            else if (Phase == 1)
+                HandlePhaseOneClick(btnPos);
             else
-                moveMade = HandlePhaseTwoClick(btnPos);
+                HandlePhaseTwoClick(btnPos);
 
-            if (moveMade && MillsManager.CheckForMill(BoardState, btnPos, ActivePlayer))
-                SetRemoveTargets();
-
-            // Siegbedingungen können erst ab der zweiten Phase überprüft werden
-            if (ActivePhase != 1)
-            {
-                // Wenn ein Spieler nur noch 2 Spielsteine hat oder keinen seiner Steine mehr bewegen kann, hat er verloren.
-                if (BlackTokenCount <= 2 || !MillsManager.HasAvailableMoves(BoardState, BlackTokenCount, 2))
-                {
-                    StatusText = "Weiß hat gewonnen! Drücken sie \"Neu Starten\" um ein neues Spiel zu starten!";
-                }
-                else if (WhiteTokenCount <= 2 || !MillsManager.HasAvailableMoves(BoardState, WhiteTokenCount, 1))
-                {
-                    StatusText = "Schwarz hat gewonnen! Drücken sie \"Neu Starten\" um ein neues Spiel zu starten!";
-                }
-            }
-
-            if (moveMade && !Remove)
-            {
-                // Spielerwechsel
-                if (ActivePlayer == 1)
-                    ActivePlayer = 2;
-                else
-                    ActivePlayer = 1;
-            }
+            LastAction = DateTime.UtcNow;
 
             OnPropertyChanged(nameof(BoardState));
         });
-
-        /// <summary>
-        /// Kommando welches ausgeführt wird, wenn der "Neu Starten" Knopf angeklickt wird.
-        /// </summary>
-        public RelayCommand ResetCommand => new((obj) => Reset());
 
         #endregion
     }

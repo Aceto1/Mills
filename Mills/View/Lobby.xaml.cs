@@ -1,28 +1,15 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using Mills.ViewModel;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
 
 namespace Mills.View
 {
-    /// <summary>
-    /// Interaktionslogik für Lobby.xaml
-    /// </summary>
     public partial class Lobby : UserControl
     {
         public Lobby()
         {
             InitializeComponent();
+            DataContext = LobbyViewModel.Instance;
         }
     }
 }

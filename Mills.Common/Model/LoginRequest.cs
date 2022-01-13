@@ -4,7 +4,10 @@ namespace Mills.Common.Model
 {
     public class LoginRequest : Request
     {
-        public override RequestMethod Method => RequestMethod.Login;
+        public LoginRequest()
+        {
+            Method = RequestMethod.Login;
+        }
 
         public string Username { get; set; }
 
