@@ -240,5 +240,14 @@ namespace Mills.Model
 
             socket.GetStream().Write(request.SerializeToBytes());
         }
+
+        public void Forfeit()
+        {
+            var request = new ForfeitRequest();
+
+            request.SessionId = sessionId;
+
+            socket.GetStream().Write(request.SerializeToBytes());
+        }
     }
 }
