@@ -28,7 +28,9 @@ namespace Mills.Server
             databaseContext = new DatabaseContext();
             userHandler = new UserHandler(databaseContext);
 
-            IPEndPoint localEndPoint = new IPEndPoint(IPAddress.Parse("127.0.0.1"), 11000);
+            IPHostEntry host = Dns.GetHostEntry("localhost");
+            IPAddress ipAddress = host.AddressList[0];
+            IPEndPoint localEndPoint = new IPEndPoint(ipAddress, 11000);
 
             // Create a Socket that will use Tcp protocol
             listener = new TcpListener(localEndPoint);
@@ -304,6 +306,19 @@ namespace Mills.Server
                                 client2.User.Status = UserStatus.Online;
                             }
                         }
+                    }
+                    break;
+                case RequestMethod.Forfeit:
+                    {
+                        var game = Games.Instance.GetGameBySessionId((request as ForfeitRequest).SessionId);
+                        var client1 = Clients.Instance.GetClient((request as ForfeitRequest).SessionId);
+                        var client2 = Clients.Instance.GetClient(game.UserId1 == client1.User.UserId ? game.UserId2 : game.UserId1);
+
+                        responses.Add(new Tuple<TcpClient, Request>(client1.Socket, new LoseRequest()));
+                        responses.Add(new Tuple<TcpClient, Request>(client2.Socket, new WinRequest()));
+                        Games.Instance.RemoveGame(game);
+                        client1.User.Status = UserStatus.Online;
+                        client2.User.Status = UserStatus.Online;
                     }
                     break;
                 default:

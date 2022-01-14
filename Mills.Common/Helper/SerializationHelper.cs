@@ -75,6 +75,9 @@ namespace Mills.Common.Helper
                 case RequestMethod.Removed:
                     result = JsonSerializer.Serialize(request as RemovedRequest);
                     break;
+                case RequestMethod.Forfeit:
+                    result = JsonSerializer.Serialize(request as ForfeitRequest);
+                    break;
                 case RequestMethod.Lose:
                     result = JsonSerializer.Serialize(request as LoseRequest);
                     break;
@@ -154,6 +157,9 @@ namespace Mills.Common.Helper
                     break;
                 case RequestMethod.Removed:
                     request = JsonSerializer.Deserialize<RemovedRequest>(requestString);
+                    break;
+                case RequestMethod.Forfeit:
+                    request = JsonSerializer.Deserialize<ForfeitRequest>(requestString);
                     break;
                 case RequestMethod.Lose:
                     request = JsonSerializer.Deserialize<LoseRequest>(requestString);

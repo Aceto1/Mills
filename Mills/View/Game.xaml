@@ -75,5 +75,6 @@
 
         <Label Content="{Binding ActivePlayerText}" HorizontalAlignment="Left" Margin="505,21,0,0" VerticalAlignment="Top"/>
         <TextBlock TextWrapping="WrapWithOverflow" Text="{Binding StatusText}" HorizontalAlignment="Left" Margin="510,51,0,0" VerticalAlignment="Top" Width="180" Height="50"/>
+        <Button Width="100" Height="25" HorizontalAlignment="Right" VerticalAlignment="Bottom" Margin="0,0,0,10" Command="{Binding ForfeitButtonClickCommand}">Aufgeben</Button>
     </Grid>
 </UserControl>

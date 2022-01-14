@@ -245,6 +245,11 @@ namespace Mills.ViewModel
             LastAction = DateTime.MinValue;
         }
 
+        public void Forfeit()
+        {
+            ServerConnection.Instance.Forfeit();
+        }
+
         #endregion
 
         #region Commands
@@ -277,6 +282,8 @@ namespace Mills.ViewModel
 
             OnPropertyChanged(nameof(BoardState));
         });
+
+        public RelayCommand ForfeitButtonClickCommand => new RelayCommand((obj) => Forfeit());
 
         #endregion
     }
