@@ -4,12 +4,15 @@ using Mills.Common.Model.Dto;
 using Mills.Database;
 using Mills.Database.Entities.User;
 using Mills.Server.Global;
+using Mills.Server.Model;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net.Sockets;
 using System.Security.Cryptography;
 using System.Text;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace Mills.Server.Handler
 {
@@ -77,6 +80,39 @@ namespace Mills.Server.Handler
             var sessionId = Guid.NewGuid().ToString();
 
             client = Clients.Instance.GetClient(socket);
+
+            if(client == null)
+            {
+                socket.SendTimeout = 5000;
+
+                var cts = new CancellationTokenSource();
+
+                client = new Client
+                {
+                    Socket = socket,
+                    Cts = cts
+                };
+
+                Clients.Instance.AddClient(client);
+
+                Task.Factory.StartNew(() =>
+                {
+                    while (true)
+                    {
+                        if (cts.IsCancellationRequested)
+                            break;
+
+                        if (!socket.Connected)
+                            break;
+
+                        if (socket.GetStream().DataAvailable)
+                            Server.HandleConnection(socket);
+
+                        Thread.Sleep(50);
+                    }
+                });
+            }
+
             client.SessionToken = sessionId;
             client.User = new UserDto
             {
