@@ -10,5 +10,6 @@
         Height="525" 
         Width="700"
         Content="{Binding Content}"
-        ResizeMode="CanMinimize">
+        ResizeMode="CanMinimize"
+        Closing="Window_Closing">
 </Window>

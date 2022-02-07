@@ -71,6 +71,9 @@ namespace Mills.Server
                         if (cts.IsCancellationRequested)
                             break;
 
+                        if (!socket.Connected)
+                            break;
+
                         if (socket.GetStream().DataAvailable)
                             HandleConnection(socket);
 
@@ -86,10 +89,15 @@ namespace Mills.Server
             {
                 byteCount = await socket.GetStream().ReadAsync(bytes);
             }
-            catch (Exception)
+            catch (Exception e)
             {
-                var client = Clients.Instance.GetClient(socket);
-                Clients.Instance.RemoveClient(client.SessionToken);
+                if (!socket.Connected)
+                {
+                    socket.Dispose();
+                    return;
+                }
+                else
+                    Console.WriteLine(e);
             }
 
             var request = bytes.Deserialize(byteCount);
