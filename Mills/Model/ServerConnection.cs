@@ -10,6 +10,7 @@ using System.Net;
 using System.Net.Sockets;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Windows;
 
 namespace Mills.Model
 {
@@ -30,13 +31,21 @@ namespace Mills.Model
             IPEndPoint localEndPoint = new IPEndPoint(ipAddress, 11000);
 
             socket = new TcpClient();
-            socket.Connect(localEndPoint);
+            try
+            {
+                socket.Connect(localEndPoint);
+            }
+            catch (System.Exception e)
+            {
+                var result = MessageBox.Show(e.Message, "Fehler", MessageBoxButton.OK);
+                App.Current.Shutdown();
+            }
 
             Task.Factory.StartNew(() =>
             {
                 while (true)
                 {
-                    if (socket.GetStream().DataAvailable)
+                    if (socket.Connected && socket.GetStream().DataAvailable)
                     {
                         HandleConnection();
                     }
@@ -157,7 +166,7 @@ namespace Mills.Model
 
         public void Logout()
         {
-            if (sessionId == null)
+            if (!socket.Connected || sessionId == null)
                 return;
 
             var request = new LogoutRequest();
